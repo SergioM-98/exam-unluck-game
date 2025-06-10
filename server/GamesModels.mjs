@@ -18,9 +18,5 @@ function Situation(situationId, name, image, index) {
   this.index = index;
 }
 
-function Round(situation, won) {
-  this.situation = situation;
-  this.won = won;
-}
 
-export { Game, Situation, Round };
+export { Game, Situation };
