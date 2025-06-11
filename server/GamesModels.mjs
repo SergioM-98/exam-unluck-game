@@ -1,21 +1,36 @@
 import dayjs from 'dayjs';
 
 
-function Game(gameId, userId, date=null, situations = [], won = []) {
+function Game(gameId, userId, date, initialCard1, initialCard2, initialCard3, round1, round2, round3, round4, round5, totalWon) {
   this.gameId = gameId;
   this.userId = userId;
-  this.date = date && dayjs(date) 
-  this.situations = situations;
-  this.won = won;
-  this.totalWon = this.won.filter(w => w !== null || w !== undefined).length;
+  this.date = dayjs(date).format('YYYY-MM-DD HH:mm:ss');
+  this.initialCard1 = initialCard1;
+  this.initialCard2 = initialCard2;
+  this.initialCard3 = initialCard3;
+  this.round1 = round1;
+  this.round2 = round2;
+  this.round3 = round3;
+  this.round4 = round4;
+  this.round5 = round5;
+  this.totalWon = totalWon;
 }
 
-function Situation(situationId, name, image, index) {
-  this.situationId = situationId;
+function Card(cardId, name, image, index) {
+  this.cardId = cardId;
   this.name = name;
   this.image = image;
   this.index = index;
 }
 
+function Round(roundId, startedAt, cardId, roundNumber, won ){
+  this.roundId = roundId;
+  this.startedAt = dayjs(startedAt).format('HH:mm:ss');
+  this.cardId = cardId;
+  this.roundNumber = roundNumber;
+  this.won = won;
+}
 
-export { Game, Situation };
+
+export { Game, Card
+, Round };
