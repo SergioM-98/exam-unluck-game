@@ -10,16 +10,41 @@
 
 ## API Server
 
-- POST `/api/something`
-  - request parameters and request body content
-  - response body content
-- GET `/api/something`
+- GET `/api/users/:userId/games`
   - request parameters
   - response body content
-- POST `/api/something`
+
+- GET `/api/cards`
+  - request parameters
+  - response body content
+
+- GET `/api/cards/:cardId`
+  - request parameters
+  - response body content
+
+- POST `/api/games`
   - request parameters and request body content
   - response body content
-- ...
+
+- PUT `/api/games/:gameId`
+  - request parameters and request body content
+  - response body content
+
+- POST `/api/games/:gameId/rounds`
+  - request parameters and request body content
+  - response body content
+
+- POST `/api/sessions`
+  - request parameters and request body content
+  - response body content
+
+- GET `/api/sessions/current`
+  - request parameters
+  - response body content
+
+- DELETE `/api/sessions/current`
+  - request parameters
+  - response body content
 
 ## Database Tables
 
