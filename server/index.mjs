@@ -5,7 +5,7 @@ import cors from 'cors';
 import passport from 'passport';
 import LocalStrategy from 'passport-local';
 import session from 'express-session';
-import {check, validationResult} from 'express-validator';
+import { check, validationResult } from 'express-validator';
 import { getCards, getGamesByUserId, addGame, addRound } from './dao-games.mjs';
 import { getUser } from './dao-users.mjs';
 
@@ -57,40 +57,62 @@ app.use(passport.authenticate('session'));
 
 /* Routes */
 
-//GET /api/users/<id_user>/games
+/* 1. GET /api/users/:userId/games
+   - Returns all games for a specific user.
+*/
+app.get('/api/users/:userId/games', isLoggedIn, async (req, res) => {
+  const userId = parseInt(req.params.userId);
+  if (isNaN(userId)) {
+    return res.status(400).json({ error: 'Invalid user ID' });
+  }
+  getGamesByUserId(userId)
+    .then(games => {
+      if (games.length === 0) {
+        return res.json([]);
+      }
+      res.json(games);
+    })
+    .catch(error => {
+      res.status(500).json({ error: 'Failed to retrieve games' });
+    });
+});
 
-// GET 3 cards to start a game
-// api/games/<id>/cards
-
-// Save a game
-// POST /api/games
-
-// add a round 
-// POST /api/games/<id>/rounds
-
-// new round draw a card
-// GET /api/cards
+/* 2. GET /api/cards
+   Optional query params:
+   - bannedCards: list of card ids to exclude (comma separated)
+   - num: number of cards to draw (default: 1)
+   - visibility: hide index if false
+   - Returns a list of random cards, filtered and if requested without index.
+*/
 app.get('/api/cards', async (req, res) => {
-  const bannedCards = req.query.bannedCards ? req.query.bannedCards.split(',').map(Number) : [];
+  const { bannedCards, num = 1, visibility = true } = req.query;
+  req.query.visibility === 'true' ? visibility = true : visibility = false;
+
+  let bannedCardsId = [];
+  if (bannedCards) {
+    bannedCardsId = bannedCards.split(',').map(id => parseInt(id));
+  }
+
   try {
-    const cards = await getCards(bannedCards, 1);
-    if (!cards || cards.length === 0) {
-      return res.status(404).json({ error: 'No cards available' });
+    const cards = await getCards(bannedCardsId, parseInt(num));
+    if (!visibility) {
+      cards.forEach(card => delete card.index);
     }
-    const { index, ...cardWithoutIndex } = cards[0]; 
-    res.json(cardWithoutIndex);
+    res.json(cards);
   } catch (error) {
-    res.status(500).json({error: 'Failed to fetch cards'});
+    res.status(500).json({ error: 'Failed to retrieve cards' });
   }
 });
 
-
-// GET /api/cards/:cardId
-app.get('/api/cards/:cardId', isLoggedIn, async (req, res) => {
+/* 3. GET /api/cards/:cardId
+   - Returns the card with the specified id.
+*/
+app.get('/api/cards/:cardId', async (req, res) => {
   const cardId = parseInt(req.params.cardId);
   if (isNaN(cardId)) {
-    return res.status(400).json({ error: 'Missing or invalid cardId' });
+    return res.status(400).json({ error: 'Invalid card ID' });
   }
+  
   try {
     const card = await getCardById(cardId);
     if (!card) {
@@ -98,6 +120,141 @@ app.get('/api/cards/:cardId', isLoggedIn, async (req, res) => {
     }
     res.json(card);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch card' });
+    res.status(500).json({ error: 'Failed to retrieve card' });
   }
 });
+
+
+/* 4. POST /api/games
+   - Creates a new game with the provided data.
+   - Body: { userId, date, initialCards, totalWon }
+*/
+app.post('/api/games',
+  [
+    check('userId').isInt(),
+    check('date').isDate({ format: 'YYYY-MM-DD HH:mm:ss', strictMode: true }),
+    check('initialCards').isArray({ min: 3, max: 3 }),
+    check('totalWon').isInt()
+  ],
+  isLoggedIn,
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+    const { userId, date, initialCards, totalWon } = req.body;
+    try {
+      const [initialCard1, initialCard2, initialCard3] = initialCards;
+      const gameId = await addGame({
+        userId,
+        date,
+        initialCard1,
+        initialCard2,
+        initialCard3,
+        round1: null,
+        round2: null,
+        round3: null,
+        round4: null,
+        round5: null,
+        totalWon
+      });
+      res.status(201).json({ gameId });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to save game' });
+    }
+  }
+);
+
+/* 5. PUT /api/games/:gameId
+   - Updates the rounds of a game.
+   - Body: { roundIds: [id1, id2, id3, id4, id5] }
+*/
+app.put('/api/games/:gameId',
+  [
+    check('roundIds').isArray({ min: 3, max: 5 })
+
+  ],
+  isLoggedIn,
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+    const gameId = parseInt(req.params.gameId);
+    const { roundIds } = req.body;
+    if (isNaN(gameId)) {
+      return res.status(400).json({ error: 'Missing or invalid gameId' });
+    }
+    try {
+      await updateGame(gameId, roundIds);
+      res.status(200).json({ message: 'Game updated successfully' });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to update game' });
+    }
+  }
+);
+
+/* 6. POST /api/games/:gameId/rounds
+   - Creates rounds for a specific game.
+   - Body: { rounds: [ { startedAt, cardId, roundNumber, won }, ... ] }
+*/
+app.post('/api/games/:gameId/rounds',
+  [
+    check('rounds').isArray({ min: 3, max: 5 }),
+    check('rounds.*.startedAt').isDate({ format: 'HH:mm:ss', strictMode: true }),
+    check('rounds.*.cardId').isInt(),
+    check('rounds.*.roundNumber').isInt({ min: 1, max: 5 }),
+    check('rounds.*.won').isBoolean()
+  ],
+  isLoggedIn,
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+    const gameId = parseInt(req.params.gameId);
+    const rounds = req.body.rounds;
+    if (isNaN(gameId)) {
+      return res.status(400).json({ error: 'Missing or invalid gameId' });
+    }
+    try {
+      const roundIds = [];
+      for (const round of rounds) {
+        const roundId = await addRound({ ...round, gameId });
+        roundIds.push(roundId);
+      }
+      res.status(201).json({ roundIds });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to save rounds' });
+    }
+  }
+);
+
+/* 7. POST /api/sessions
+   - Authenticates a user and starts a session.
+*/
+app.post('/api/sessions', passport.authenticate('local'), function(req, res) {
+  return res.status(201).json(req.user);
+});
+
+/* 8. GET /api/sessions/current
+   - Returns the current authenticated user.
+*/
+app.get('/api/sessions/current', (req, res) => {
+  if(req.isAuthenticated()) {
+    res.json(req.user);}
+  else
+    res.status(401).json({error: 'Not authenticated'});
+});
+
+/* 9. DELETE /api/sessions/current
+   - Logs out the current user and ends the session.
+*/
+app.delete('/api/sessions/current', (req, res) => {
+  req.logout(() => {
+    res.end();
+  });
+});
+
+// start the server
+app.listen(port, () => { console.log(`API server started at http://localhost:${port}`); });
