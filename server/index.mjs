@@ -6,7 +6,7 @@ import passport from 'passport';
 import LocalStrategy from 'passport-local';
 import session from 'express-session';
 import { check, validationResult } from 'express-validator';
-import { getCards, getGamesByUserId, addGame, addRound } from './dao-games.mjs';
+import { getCards, getGamesByUserId, addGame, addRound, getCardById } from './dao-games.mjs';
 import { getUser } from './dao-users.mjs';
 
 
@@ -85,7 +85,7 @@ app.get('/api/users/:userId/games', isLoggedIn, async (req, res) => {
    - Returns a list of random cards, filtered and if requested without index.
 */
 app.get('/api/cards', async (req, res) => {
-  const { bannedCards, num = 1, visibility = true } = req.query;
+  let { bannedCards, num = 1, visibility = true } = req.query;
   req.query.visibility === 'true' ? visibility = true : visibility = false;
 
   let bannedCardsId = [];

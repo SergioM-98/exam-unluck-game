@@ -116,7 +116,7 @@ export async function getCards(bannedCardsId = [], numCards) {
             } else {
                 // Filter out banned cards and shuffle the remaining cards
                 const cards = rows
-                    .map(row => new Card(row.id_card, row.name, row.image, row.index))
+                    .map(row => new Card(row.id_card, row.name, row.image, row.unluck_index))
                     .filter(card => !bannedCardsId.includes(card.cardId));
                 resolve(cards.sort(() => Math.random() - 0.5).slice(0, numCards));
             }
@@ -133,7 +133,7 @@ export async function getCardById(cardId) {
             } else if (!row) {
                 resolve(null);
             } else {
-                resolve(new Card(row.id_card, row.name, row.image, row.index));
+                resolve(new Card(row.id_card, row.name, row.image, row.unluck_index));
             }
         });
     });
