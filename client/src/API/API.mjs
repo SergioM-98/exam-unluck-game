@@ -33,5 +33,43 @@ const getGamesByUserId = async (userId) => {
 // 5. PUT    /api/games/:gameId               - Updates the rounds of a game
 // 6. POST   /api/games/:gameId/rounds        - Creates rounds for a specific game
 // 7. POST   /api/sessions                    - Authenticates a user and starts a session
-// 8. GET    /api/sessions/current            - Returns the current authenticated user
-// 9. DELETE /api/sessions/current            - Logs out the current user
+const logIn = async (credentials) => {
+  const response = await fetch(SERVER_URL + '/api/sessions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify(credentials),
+  });
+  if(response.ok) {
+    const user = await response.json();
+    return user;
+  }
+  else {
+    const errDetails = await response.text();
+    throw errDetails;
+  }
+};
+// 8. GET    /api/sessions/current            
+const getUserInfo = async () => {
+  const response = await fetch(SERVER_URL + '/api/sessions/current', {
+    credentials: 'include',
+  });
+  const user = await response.json();
+  if (response.ok) {
+    return user;
+  } else {
+    throw user;  
+  }
+};
+
+//DELETE /api/sessions/current           
+const logOut = async() => {
+  const response = await fetch(SERVER_URL + '/api/sessions/current', {
+    method: 'DELETE',
+    credentials: 'include'
+  });
+  if (response.ok)
+    return null;
+}
