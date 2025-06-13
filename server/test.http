@@ -7,13 +7,13 @@ Cookie: connect.sid=YOUR_SESSION_COOKIE
 ###
 
 ### 2. GET cards (no params)
-GET http://localhost:3001/api/cards
+GET http://localhost:3001/api/cards?&num=3
 Cookie: connect.sid=YOUR_SESSION_COOKIE
 
 ###
 
 ### 3. GET cards with params
-GET http://localhost:3001/api/cards?bannedCards=1,2,3&num=2&visibility=false
+GET http://localhost:3001/api/cards?bannedCards=1,2,3&num=3&visibility=true
 Cookie: connect.sid=YOUR_SESSION_COOKIE
 
 ###
@@ -69,8 +69,8 @@ POST http://localhost:3001/api/sessions
 Content-Type: application/json
 
 {
-  "username": "youruser",
-  "password": "yourpassword"
+  "username": "Sfortunato03",
+  "password": "sfortuna33"
 }
 
 ###

@@ -49,7 +49,7 @@ const isLoggedIn = (req, res, next) => {
 }
 
 app.use(session({
-  secret: "shhhhh... it's a secret!",
+  secret: "segreto",
   resave: false,
   saveUninitialized: false,
 }));
@@ -85,8 +85,8 @@ app.get('/api/users/:userId/games', isLoggedIn, async (req, res) => {
    - Returns a list of random cards, filtered and if requested without index.
 */
 app.get('/api/cards', async (req, res) => {
-  let { bannedCards, num = 1, visibility = true } = req.query;
-  req.query.visibility === 'true' ? visibility = true : visibility = false;
+  let { bannedCards, num = 1, visibility} = req.query;
+  req.query.visibility === 'false' ? visibility = false : visibility = true;
 
   let bannedCardsId = [];
   if (bannedCards) {
@@ -234,7 +234,7 @@ app.post('/api/games/:gameId/rounds',
    - Authenticates a user and starts a session.
 */
 app.post('/api/sessions', passport.authenticate('local'), function(req, res) {
-  return res.status(201).json(req.user);
+  return res.status(200).json(req.user);
 });
 
 /* 8. GET /api/sessions/current

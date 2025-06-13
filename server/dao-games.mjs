@@ -28,14 +28,13 @@ export async function getGamesByUserId(userId) {
                         new Card(row['card1.id_card'], row['card1.name'], row['card1.image'], row['card1.index']),
                         new Card(row['card2.id_card'], row['card2.name'], row['card2.image'], row['card2.index']),
                         new Card(row['card3.id_card'], row['card3.name'], row['card3.image'], row['card3.index']),
-                        new Round(row['round1.id_round'], row['round1.started_at'], row['round1.card_id'], row['round_number'], row['round1.won'], row['round1.id_game']),
-                        new Round(row['round2.id_round'], row['round2.started_at'], row['round2.card_id'], row['round_number'], row['round2.won'], row['round2.id_game']),
-                        new Round(row['round3.id_round'], row['round3.started_at'], row['round3.card_id'], row['round_number'], row['round3.won'], row['round3.id_game']),
-                        row.round4 ? new Round(row['round4.id_round'], row['round4.started_at'], row['round4.card_id'], row['round_number'], row['round4.won'], row['round4.id_game']) : null,
-                        row.round5 ? new Round(row['round5.id_round'], row['round5.started_at'], row['round5.card_id'], row['round_number'], row['round5.won'], row['round5.id_game']) : null,
-                        row.totalWon
+                        new Round(row['round1.id_round'], row['round1.started_at'], row['round1.card_id'], row['round1.round_number'], row['round1.won'], row['round1.id_game']),
+                        new Round(row['round2.id_round'], row['round2.started_at'], row['round2.card_id'], row['round2.round_number'], row['round2.won'], row['round2.id_game']),
+                        new Round(row['round3.id_round'], row['round3.started_at'], row['round3.card_id'], row['round3.round_number'], row['round3.won'], row['round3.id_game']),
+                        row['round4.id_round'] ? new Round(row['round4.id_round'], row['round4.started_at'], row['round4.card_id'], row['round4.round_number'], row['round4.won'], row['round4.id_game']) : null,
+                        row['round5.id_round'] ? new Round(row['round5.id_round'], row['round5.started_at'], row['round5.card_id'], row['round5.round_number'], row['round5.won'], row['round5.id_game']) : null,
+                        row.won_total
                     );
-
                 });
                 resolve(games.sort((a, b) => dayjs(b.date).isAfter(dayjs(a.date)) ? 1 : -1));
             }
