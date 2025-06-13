@@ -66,5 +66,5 @@
 
 ## Users Credentials
 
-- username, password (plus any other requested info)
-- username, password (plus any other requested info)
+- Sfortunato03, sfortuna33 
+- Fortunata04, fortuna07
