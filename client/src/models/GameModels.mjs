@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 
 
-function Game(gameId, userId, date, initialCard1, initialCard2, initialCard3, round1, round2, round3, round4, round5) {
+function Game(gameId, userId, date, initialCard1, initialCard2, initialCard3, round1, round2, round3, round4, round5, totalWon=null) {
   this.gameId = gameId;
   this.userId = userId;
   this.date = dayjs(date).format('YYYY-MM-DD HH:mm:ss');
@@ -13,7 +13,9 @@ function Game(gameId, userId, date, initialCard1, initialCard2, initialCard3, ro
   this.round3 = round3;
   this.round4 = round4;
   this.round5 = round5;
-  this.totalWon = round1.won + round2.won + round3.won + (round4 ? round4.won : 0) + (round5 ? round5.won : 0);
+  this.totalWon = (totalWon !== null && totalWon !== undefined)
+  ? totalWon
+  : round1.won + round2.won + round3.won + (round4 ? round4.won : 0) + (round5 ? round5.won : 0);
 }
 
 function Card(cardId, name, image, index) {
