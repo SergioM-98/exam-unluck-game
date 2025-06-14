@@ -1,4 +1,4 @@
-// imports
+// Imports
 import express from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
@@ -8,28 +8,28 @@ import session from 'express-session';
 import { check, validationResult } from 'express-validator';
 import { getCards, getGamesByUserId, addGame, addRound, getCardById } from './dao-games.mjs';
 import { getUser } from './dao-users.mjs';
+import dayjs from 'dayjs';
 
-
-// init express
+// Initialize express app
 const app = new express();
 const port = 3001;
 
+// Middleware setup
 app.use(express.json());
 app.use(morgan('dev'));
 
 const corsOptions = {
   origin: 'http://localhost:5173', // React app URL
-  optionsSuccessStatus: 200, // For legacy browser support
+  optionsSuccessStatus: 200,
   credentials: true, // Allow cookies to be sent
 }
-
 app.use(cors(corsOptions));
 
+// Passport authentication setup
 passport.use(new LocalStrategy(async function verify(username, password, cb) {
   const user = await getUser(username, password);
   if(!user)
     return cb(null, false, 'Incorrect username or password.');
-    
   return cb(null, user);
 }));
 
@@ -41,6 +41,7 @@ passport.deserializeUser(function (user, cb) {
   return cb(null, user);
 });
 
+// Middleware to check if user is authenticated
 const isLoggedIn = (req, res, next) => {
   if(req.isAuthenticated()) {
     return next();
@@ -48,14 +49,15 @@ const isLoggedIn = (req, res, next) => {
   return res.status(401).json({error: 'Not authorized'});
 }
 
+// Session setup
 app.use(session({
-  secret: "segreto",
+  secret: "secret",
   resave: false,
   saveUninitialized: false,
 }));
 app.use(passport.authenticate('session'));
 
-/* Routes */
+/* ROUTES */
 
 /* 1. GET /api/users/:userId/games
    - Returns all games for a specific user.
@@ -77,15 +79,15 @@ app.get('/api/users/:userId/games', isLoggedIn, async (req, res) => {
     });
 });
 
-/* 2. GET /api/cards
-   Optional query params:
-   - bannedCards: list of card ids to exclude (comma separated)
-   - num: number of cards to draw (default: 1)
-   - visibility: hide index if false
-   - Returns a list of random cards, filtered and if requested without index.
+/* 2. GET /api/rounds/:roundNumber/cards
+   - Returns a list of random cards for a round, with optional filters.
+   - Query params:
+     - bannedCards: list of card ids to exclude (comma separated)
+     - num: number of cards to draw (default: 1)
+     - visibility: hide index if false
 */
-app.get('/api/cards', async (req, res) => {
-  let { bannedCards, num = 1, visibility} = req.query;
+app.get('/api/rounds/:roundNumber/cards', async (req, res) => {
+  let { bannedCards, num = 1, visibility } = req.query;
   req.query.visibility === 'false' ? visibility = false : visibility = true;
 
   let bannedCardsId = [];
@@ -98,19 +100,37 @@ app.get('/api/cards', async (req, res) => {
     if (!visibility) {
       cards.forEach(card => delete card.index);
     }
+    if(num === 1){
+      // Save drawn cards in session, associated with the roundNumber
+      if (!req.session.drawnCards) req.session.drawnCards = {};
+      req.session.drawnCards[req.params.roundNumber] = cards;
+    }
+    else {
+      // Prevent drawing initial cards more than once per game/session
+      if (req.session.initialCards) {
+        return res.status(400).json({ error: 'Initial cards have already been drawn for this game.' });
+      }
+      req.session.drawnCards = {};
+      req.session.timers = {};
+      req.session.initialCards = cards;
+    }
     res.json(cards);
   } catch (error) {
     res.status(500).json({ error: 'Failed to retrieve cards' });
   }
 });
 
-/* 3. GET /api/cards/:cardId
-   - Returns the card with the specified id.
+/* 3. GET /api/rounds/:roundNumber/cards/:cardId
+   - Returns the card with the specified id for a specific round.
+   - Checks if the card was drawn in this round.
 */
-app.get('/api/cards/:cardId', async (req, res) => {
+app.get('/api/rounds/:roundNumber/cards/:cardId', async (req, res) => {
   const cardId = parseInt(req.params.cardId);
   if (isNaN(cardId)) {
     return res.status(400).json({ error: 'Invalid card ID' });
+  }
+  if (cardId !== req.session.drawnCards[req.params.roundNumber]?.[0]?.cardId) {
+    return res.status(400).json({ error: 'Card not drawn in this round' });
   }
   
   try {
@@ -124,16 +144,15 @@ app.get('/api/cards/:cardId', async (req, res) => {
   }
 });
 
-
 /* 4. POST /api/games
-   - Creates a new game with the provided data.
-   - Body: { userId, date, initialCards, totalWon }
+   - Creates a new game with the provided data at the end of the game.
+   - Uses the initial cards saved in session (req.session.initialCards) for the game.
+   - Body: { userId, date, totalWon }
 */
 app.post('/api/games',
   [
     check('userId').isInt(),
     check('date').isDate({ format: 'YYYY-MM-DD HH:mm:ss', strictMode: true }),
-    check('initialCards').isArray({ min: 3, max: 3 }),
     check('totalWon').isInt()
   ],
   isLoggedIn,
@@ -142,7 +161,15 @@ app.post('/api/games',
     if (!errors.isEmpty()) {
       return res.status(422).json({ errors: errors.array() });
     }
-    const { userId, date, initialCards, totalWon } = req.body;
+    const { userId, date, totalWon } = req.body;
+
+    // Use the initial cards saved in session
+    const initialCards = req.session.initialCards;
+    req.session.initialCards = null; // Clear initial cards after use
+    if (!initialCards || initialCards.length !== 3) {
+      return res.status(400).json({ error: 'Initial cards not found in session or invalid' });
+    }
+
     try {
       const [initialCard1, initialCard2, initialCard3] = initialCards;
       const gameId = await addGame({
@@ -172,7 +199,6 @@ app.post('/api/games',
 app.put('/api/games/:gameId',
   [
     check('roundIds').isArray({ min: 3, max: 5 })
-
   ],
   isLoggedIn,
   async (req, res) => {
@@ -196,13 +222,13 @@ app.put('/api/games/:gameId',
 
 /* 6. POST /api/games/:gameId/rounds
    - Creates rounds for a specific game.
-   - Body: { rounds: [ { startedAt, cardId, roundNumber, won }, ... ] }
+   - Body: { rounds: [ { startedAt, roundNumber, won }, ... ] }
+   - Uses the cardId saved in session for each round.
 */
 app.post('/api/games/:gameId/rounds',
   [
     check('rounds').isArray({ min: 3, max: 5 }),
     check('rounds.*.startedAt').isDate({ format: 'HH:mm:ss', strictMode: true }),
-    check('rounds.*.cardId').isInt(),
     check('rounds.*.roundNumber').isInt({ min: 1, max: 5 }),
     check('rounds.*.won').isBoolean()
   ],
@@ -217,10 +243,18 @@ app.post('/api/games/:gameId/rounds',
     if (isNaN(gameId)) {
       return res.status(400).json({ error: 'Missing or invalid gameId' });
     }
+
     try {
       const roundIds = [];
       for (const round of rounds) {
-        const roundId = await addRound({ ...round, gameId });
+        // Get the cardId from session for this roundNumber
+        const drawnCards = req.session.drawnCards?.[round.roundNumber];
+        if (!drawnCards || !drawnCards.length) {
+          return res.status(400).json({ error: `No drawn card found in session for round ${round.roundNumber}` });
+        }
+        // Use the cardId from session
+        const cardId = drawnCards[0].cardId;
+        const roundId = await addRound({ ...round, cardId, gameId });
         roundIds.push(roundId);
       }
       res.status(201).json({ roundIds });
@@ -230,14 +264,56 @@ app.post('/api/games/:gameId/rounds',
   }
 );
 
-/* 7. POST /api/sessions
+/* 7. POST /api/rounds/:roundNumber/timers
+   - Saves a timer for a round (works for both logged and guest users).
+   - Body: { startedAt: 'HH:mm:ss' }
+*/
+app.post('/api/rounds/:roundNumber/timers', (req, res) => {
+  const { startedAt } = req.body;
+  const { roundNumber } = req.params;
+
+  if (!startedAt) {
+    return res.status(400).json({ error: 'startedAt is required' });
+  }
+
+  // Save the timer in session, associated with the roundNumber
+  if (!req.session.timers) req.session.timers = {};
+  req.session.timers[roundNumber] = dayjs(startedAt);
+
+  res.status(200).json({ message: 'Timer saved in session', roundNumber, startedAt });
+});
+
+/* 8. POST /api/rounds/:roundNumber/timers/validate
+   - Validates the timer for a round (max 30 seconds + 1 second margin).
+   - Returns { valid: true/false, elapsed: seconds }
+*/
+app.post('/api/rounds/:roundNumber/timers/validate', (req, res) => {
+  const { roundNumber } = req.params;
+  const startedAt = req.session.timers?.[roundNumber];
+
+  if (!startedAt) {
+    return res.status(400).json({ error: 'No timer found for this round' });
+  }
+
+  // Acceptable margin for network delay (1 second)
+  const MARGIN_SECONDS = 1;
+
+  const now = dayjs();
+  const elapsed = now.diff(startedAt, 'second', true);
+
+  const valid = elapsed <= (30 + MARGIN_SECONDS);
+
+  res.json({ valid, elapsed });
+});
+
+/* 9. POST /api/sessions
    - Authenticates a user and starts a session.
 */
 app.post('/api/sessions', passport.authenticate('local'), function(req, res) {
   return res.status(200).json(req.user);
 });
 
-/* 8. GET /api/sessions/current
+/* 10. GET /api/sessions/current
    - Returns the current authenticated user.
 */
 app.get('/api/sessions/current', (req, res) => {
@@ -247,7 +323,7 @@ app.get('/api/sessions/current', (req, res) => {
     res.status(401).json({error: 'Not authenticated'});
 });
 
-/* 9. DELETE /api/sessions/current
+/* 11. DELETE /api/sessions/current
    - Logs out the current user and ends the session.
 */
 app.delete('/api/sessions/current', (req, res) => {
@@ -256,5 +332,5 @@ app.delete('/api/sessions/current', (req, res) => {
   });
 });
 
-// start the server
+// Start the server
 app.listen(port, () => { console.log(`API server started at http://localhost:${port}`); });
