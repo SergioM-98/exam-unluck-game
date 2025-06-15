@@ -15,7 +15,7 @@ function NavHeader(props) {
 
                     as={Link}
                     to="/"
-                    onClick ={handleBrandClick}
+                    onClick={handleBrandClick}
                 >
                     Stuff Happens:{" "}
                     <span
