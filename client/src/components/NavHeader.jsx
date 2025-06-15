@@ -3,21 +3,24 @@ import { LogoutButton } from './AuthComponents';
 import {Link} from 'react-router';
 
 function NavHeader(props) {
-    
-    
+
+    const handleBrandClick = (e) => {
+        if (props.hideLinks) e.preventDefault();
+    };
+
     return (
        <Navbar style={{ backgroundColor: '#ad1457' }} variant="dark" fixed="top" expand="lg">
             <Container fluid>
               <Navbar.Brand
+
                     as={Link}
                     to="/"
-                   
+                    onclick ={handleBrandClick}
                 >
                     Stuff Happens:{" "}
                     <span
                         className="text-shadow-black"
                         style={{ color: '#b30000' }}
-                    
                     >
                         Romantic
                     </span>{" "}
@@ -25,18 +28,19 @@ function NavHeader(props) {
                 </Navbar.Brand>
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse id="basic-navbar-nav">    
-                    <Nav className="ms-auto">
-                        <Nav.Link as={Link} to="/" >Home</Nav.Link>
-                        {props.loggedIn  ?(
-                            <>
-                                <Nav.Link as={Link} to={`/profile/${props.user.id}`}>Profile</Nav.Link>
-                                <LogoutButton logout={props.handleLogout} />
-                            </>
-                        ) : (
-                            <Nav.Link as={Link} to="/login">Login</Nav.Link>
-                        )}
-
-                    </Nav>         
+                    {!props.hideLinks && ( 
+                        <Nav className="ms-auto">
+                            <Nav.Link as={Link} to="/" >Home</Nav.Link>
+                            {props.loggedIn  ?(
+                                <>
+                                    <Nav.Link as={Link} to={`/profile/${props.user.id}`}>Profile</Nav.Link>
+                                    <LogoutButton logout={props.handleLogout} />
+                                </>
+                            ) : (
+                                <Nav.Link as={Link} to="/login">Login</Nav.Link>
+                            )}
+                        </Nav>
+                    )}         
                 </Navbar.Collapse>
             </Container>
         </Navbar>
