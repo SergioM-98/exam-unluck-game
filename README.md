@@ -66,5 +66,5 @@
 
 ## Users Credentials
 
-- Sfortunato03, sfortuna33 
-- Fortunata04, fortuna07
+- romantico01@nomail.com, sfortuna33 
+- aromantica94@nomail.com, fortuna07
