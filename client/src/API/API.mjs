@@ -194,6 +194,7 @@ const getUserInfo = async () => {
   });
   const user = await response.json();
   if (response.ok) {
+
     return user;
   } else {
     throw user;  
@@ -210,3 +211,18 @@ const logOut = async() => {
   if (response.ok)
     return null;
 }
+
+const API = {
+  getGamesByUserId,
+  getCards,
+  getCardById,
+  saveGame,
+  updateGameRounds,
+  saveRounds,
+  saveTimer,
+  validateTimer,
+  logIn,
+  getUserInfo,
+  logOut,
+  };
+  export default API;
