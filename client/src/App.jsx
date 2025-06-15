@@ -17,6 +17,7 @@ function App() {
   const [message, setMessage] = useState("");
   const [user, setUser] = useState("");
   const [state, setState] = useState(1); 
+  const [hideLinks, setHideLinks] = useState(false);
 
 
    useEffect(() => {
@@ -52,7 +53,13 @@ function App() {
   return (
     <Routes>
     <Route element={<>
-      <NavHeader loggedIn={loggedIn} handleLogout={handleLogout} user={user}  />
+      <NavHeader
+        loggedIn={loggedIn}
+        handleLogout={handleLogout}
+        user={user}
+        // Nascondi i link solo se sei in gioco
+        hideLinks={hideLinks}
+      />
       <Container fluid>
       {message && <Row>
           <Alert variant={message.type} onClose={() => setMessage('')} dismissible>{message.msg}</Alert>
@@ -65,7 +72,7 @@ function App() {
       </Container>
       
     </>}>
-    <Route path="/" element={ <HomePage loggedIn={loggedIn} user={user} state={state} setState={setState} />} />
+    <Route path="/" element={ <HomePage loggedIn={loggedIn} user={user} state={state} setState={setState} setHideLinks={setHideLinks} />} />
     <Route path="/profile/:idProfile" element={<Profile user={user} loggedIn={loggedIn} />} />
     <Route path='/login' element={loggedIn ? <Navigate replace to='/' /> : <LoginForm handleLogin={handleLogin} />} />
     <Route path="/games" element={<GameManager LoggedIn = {loggedIn} user={user}/>} >
