@@ -76,10 +76,9 @@ function App() {
     <Route path="/profile/:idProfile" element={<Profile user={user} loggedIn={loggedIn} />} />
     <Route path='/login' element={loggedIn ? <Navigate replace to='/' /> : <LoginForm handleLogin={handleLogin} />} />
     <Route path="/games" element={<GameManager LoggedIn = {loggedIn} user={user}/>} >
-      <Route path="round:roundNumber" element={<RoundManager loggedIn={loggedIn}/>} />
+      <Route path="rounds/:roundNumber" element={<RoundManager loggedIn={loggedIn}/>} />
       
     </Route>
-      <Route path="/profile/:idProfile" element={<Profile user={user} loggedIn={loggedIn} />} />
       <Route path="*" element={<Navigate replace to="/" />} />
       
     </Route>

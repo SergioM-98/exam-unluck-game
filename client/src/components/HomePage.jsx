@@ -16,7 +16,7 @@ function HomePage (props) {
           <div className="btn-home d-flex flex-column align-items-center">
             <Link className='btn btn-dark mb-2' to="/howToPlay">GUIDA RAPIDA</Link> 
             {props.loggedIn
-              ? <Link className='btn btn-dark mb-2' to={`/games/round${props.stato}`} onClick={() => props.setHideLinks(true)}>GIOCA ORA</Link>
+              ? <Link className='btn btn-dark mb-2' to={`/games/round${props.state}`} onClick={() => props.setHideLinks(true)}>GIOCA ORA</Link>
               : <Link className='btn btn-dark mb-2' to="/games" onClick={() => props.setHideLinks(true)}>GIOCA ORA DEMO</Link>
             }
           </div>
