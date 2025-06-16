@@ -1,11 +1,20 @@
-import { Row, Col, Container } from "react-bootstrap";
+import { Row, Col, Container, Button } from "react-bootstrap";
 import { useEffect } from 'react';
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 function HomePage (props) {
+  const navigate = useNavigate();
+
   useEffect(() => {
     props.setState(1);
+    props.setHideLinks(false);
   }, []);
+
+  const handlePlay = async () => {
+    props.setHideLinks(true);
+    if (props.onStartGame) await props.onStartGame();
+    navigate("/games");
+  };
 
   return(
     <Container className="screen text-center mt-5">
@@ -16,8 +25,12 @@ function HomePage (props) {
           <div className="btn-home d-flex flex-column align-items-center">
             <Link className='btn btn-dark mb-2' to="/howToPlay">GUIDA RAPIDA</Link> 
             {props.loggedIn
-              ? <Link className='btn btn-dark mb-2' to={`/games/round${props.state}`} onClick={() => props.setHideLinks(true)}>GIOCA ORA</Link>
-              : <Link className='btn btn-dark mb-2' to="/games" onClick={() => props.setHideLinks(true)}>GIOCA ORA DEMO</Link>
+              ? <Button variant="dark" className="mb-2" onClick={handlePlay}>
+                  GIOCA ORA
+                </Button>
+              : <Button variant="dark" className="mb-2" onClick={handlePlay}>
+                  GIOCA ORA DEMO
+                </Button>
             }
           </div>
         </Col>
