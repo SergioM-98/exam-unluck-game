@@ -25,7 +25,7 @@ function GameManager(props) {
       });
       setCardsDrawn(drawnCards.concat(roundCard));
       setCardOfRound(roundCard[0]);
-      const startRound = dayjs().format("HH:mm:ss");
+      const startRound = dayjs().format("YYYY-MM-DD HH:mm:ss");
       const newRound = new Round(
         null,
         startRound,
@@ -37,8 +37,11 @@ function GameManager(props) {
       setCurrentRound(newRound);
       setRounds((prev) => [...prev, newRound]);
       await API.saveTimer(roundNumber, startRound);
+      setInGame(true);
+      
     } catch (error) {
       setMessage && setMessage({ msg: "Error starting round", type: "danger" });
+      
     }
   };
 
@@ -71,57 +74,72 @@ function GameManager(props) {
     }
   };
 
-  const selectionControl = (precIndex, succIndex) => {
+  const selectionControl = async (precIndex, succIndex) => {
     let won = false;
-    const card = API.getCardById(currentRound.roundNumber, cardOfRound.cardId);
+    const card = await API.getCardById(currentRound.roundNumber, cardOfRound.cardId);
     if (card.index < succIndex && card.index > precIndex) {
       won = true;
+  
     }
+
     handleEndRound(won);
   };
 
   return (
     <Container fluid className="main-content" style={{ minHeight: "100vh", display: "flex", flexDirection: "column", padding: 0 }}>
-      <div className="main-content d-flex flex-column justify-content-between align-items-center" style={{ flex: 1, width: "100%" }}>
-        {/* In alto */}
-        <div className="w-100 d-flex justify-content-center" style={{ minHeight: "1vh" }}>
-          <Row className="text-center w-100">
-            <Col>
-              <h1>Round: {currentRound?.roundNumber || "-"}</h1>
-            </Col>
-          </Row>
-        </div>
+      {inGame ? (
+        <div className="main-content d-flex flex-column justify-content-between align-items-center" style={{ flex: 1, width: "100%" }}>
+          {/* In alto */}
+          <div className="w-100 d-flex justify-content-center" style={{ minHeight: "1vh" }}>
+            <Row className="text-center w-100">
+              <Col>
+                <h1>Round: {currentRound?.roundNumber || "-"}</h1>
+              </Col>
+            </Row>
+          </div>
 
-        {/* Al centro */}
-        <div className="w-100 d-flex justify-content-center align-items-center" style={{ flex: 1, minHeight: "10vh" }}>
-          {cardOfRound && (
-            <GameCard {...cardOfRound} />
-          )}
-        </div>
+          {/* Al centro */}
+          <div className="w-100 d-flex justify-content-center align-items-center" style={{ flex: 1, minHeight: "10vh" }}>
+            {cardOfRound && (
+              <GameCard {...cardOfRound} />
+            )}
+          </div>
 
-        {/* In basso */}
-        <div className="w-100 d-flex flex-column align-items-center justify-content-end" style={{ minHeight: "20vh" }}>
-          <div className="d-flex align-items-center flex-nowrap mb-3 cards-row" style={{ width: "100%", maxWidth: "100vw", justifyContent: "center", overflowX: "hidden", whiteSpace: "nowrap", gap: "0" }}>
-            {Array.from({ length: cardsInHand.length + 1 }).map((_, idx) => (
-              <span key={idx} className="d-flex align-items-center">
-                <Button
-                  variant="outline-secondary"
-                  className="mx-1 between-btn"
-                  style={{ minWidth: "36px", height: "36px", padding: 0, fontSize: "1.3rem" }}
-                  onClick={() => {
-                    const precIndex = idx === 0 ? 0 : (cardsInHand[idx - 1]?.index ?? 0);
-                    const succIndex = idx === cardsInHand.length ? 101 : (cardsInHand[idx]?.index ?? 101);
-                    selectionControl(precIndex, succIndex);
-                  }}
-                >
-                  ▼
-                </Button>
-                {idx < cardsInHand.length && <GameCard {...cardsInHand[idx]} />}
-              </span>
-            ))}
+          {/* In basso */}
+          <div className="w-100 d-flex flex-column align-items-center justify-content-end" style={{ minHeight: "20vh" }}>
+            <div className="d-flex align-items-center flex-nowrap mb-3 cards-row" style={{ width: "100%", maxWidth: "100vw", justifyContent: "center", overflowX: "hidden", whiteSpace: "nowrap", gap: "0" }}>
+              {Array.from({ length: cardsInHand.length + 1 }).map((_, idx) => (
+                <span key={idx} className="d-flex align-items-center">
+                  <Button
+                    variant="outline-secondary"
+                    className="mx-1 between-btn"
+                    style={{ minWidth: "36px", height: "36px", padding: 0, fontSize: "1.3rem" }}
+                    onClick={() => {
+                      const precIndex = idx === 0 ? 0 : (cardsInHand[idx - 1]?.index ?? 0);
+                      const succIndex = idx === cardsInHand.length ? 101 : (cardsInHand[idx]?.index ?? 101);
+                      selectionControl(precIndex, succIndex);
+                    }}
+                  >
+                    ▼
+                  </Button>
+                  {idx < cardsInHand.length && <GameCard {...cardsInHand[idx]} />}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      ) : (
+        // Mostra solo il bottone quando il round è finito
+        <div className="d-flex flex-column justify-content-center align-items-center" style={{ flex: 1, minHeight: "100vh" }}>
+          <Button
+            variant="primary"
+            size="lg"
+            onClick={() => handleRoundStart((currentRound?.roundNumber || 0) + 1)}
+          >
+            Inizia prossimo Round
+          </Button>
+        </div>
+      )}
     </Container>
   );
 }

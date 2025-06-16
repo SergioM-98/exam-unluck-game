@@ -57,7 +57,8 @@ function App() {
     const firstRoundCard = await API.getCards(1, { num: 1, bannedCards: banned, visibility: false });
 
     // Prepara il round corrente
-    const startRound = dayjs().format("HH:mm:ss");
+    const startRound = dayjs().format("YYYY-MM-DD HH:mm:ss");
+    
     const currentRound = new Round(
       null,
       startRound,
@@ -82,6 +83,7 @@ function App() {
       currentRound,
       rounds: [currentRound]
     });
+    await API.saveTimer(1, startRound);
   };
 
   return (

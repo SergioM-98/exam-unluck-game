@@ -271,15 +271,10 @@ app.post('/api/games/:gameId/rounds',
 app.post('/api/rounds/:roundNumber/timers', (req, res) => {
   const { startedAt } = req.body;
   const { roundNumber } = req.params;
-
-  if (!startedAt) {
-    return res.status(400).json({ error: 'startedAt is required' });
-  }
-
+  
   // Save the timer in session, associated with the roundNumber
   if (!req.session.timers) req.session.timers = {};
-  req.session.timers[roundNumber] = dayjs(startedAt);
-
+  req.session.timers[roundNumber] = startedAt;
   res.status(200).json({ message: 'Timer saved in session', roundNumber, startedAt });
 });
 
@@ -289,8 +284,9 @@ app.post('/api/rounds/:roundNumber/timers', (req, res) => {
 */
 app.post('/api/rounds/:roundNumber/timers/validate', (req, res) => {
   const { roundNumber } = req.params;
-  const startedAt = req.session.timers?.[roundNumber];
 
+  
+  const startedAt = req.session.timers[roundNumber];
   if (!startedAt) {
     return res.status(400).json({ error: 'No timer found for this round' });
   }
@@ -298,8 +294,10 @@ app.post('/api/rounds/:roundNumber/timers/validate', (req, res) => {
   // Acceptable margin for network delay (1 second)
   const MARGIN_SECONDS = 1;
 
+  const startedAtMoment = dayjs(startedAt, 'HH:mm:ss');
   const now = dayjs();
-  const elapsed = now.diff(startedAt, 'second', true);
+
+  const elapsed = startedAtMoment.diff(now, 'second');
 
   const valid = elapsed <= (30 + MARGIN_SECONDS);
 

@@ -1,4 +1,5 @@
 import { Game, Round, Card } from "../models/GameModels.mjs";
+import dayjs from "dayjs";
 
 const SERVER_URL = "http://localhost:3001";
 
@@ -142,7 +143,7 @@ const saveTimer = async (roundNumber, timerData) => {
       'Content-Type': 'application/json',
     },
     credentials: 'include',
-    body: JSON.stringify({ startedAt: dayjs(timerData).format('HH:mm:ss') }),
+    body: JSON.stringify({ startedAt: timerData }),
   });
   if (response.ok) {
     return await response.json();
