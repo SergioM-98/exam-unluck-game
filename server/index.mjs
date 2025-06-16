@@ -100,7 +100,7 @@ app.get('/api/rounds/:roundNumber/cards', async (req, res) => {
     if (!visibility) {
       cards.forEach(card => delete card.index);
     }
-    if(num === 1){
+    if(parseInt(num) === 1){
       // Save drawn cards in session, associated with the roundNumber
       if (!req.session.drawnCards) req.session.drawnCards = {};
       req.session.drawnCards[req.params.roundNumber] = cards;
