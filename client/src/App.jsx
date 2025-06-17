@@ -7,6 +7,7 @@ import API from "./API/API.mjs";
 import NavHeader from "./components/NavHeader";
 import HomePage from "./components/HomePage";
 import GameManager from "./components/GameManager";
+import GameSummary from "./components/GameSummary";
 import Profile from "./components/Profile";
 import { Container, Row, Col, Alert } from "react-bootstrap";
 import { Game, Round } from "./models/GameModels.mjs";
@@ -80,8 +81,7 @@ function App() {
       cardsInHand: drawn,
       cardsDrawn: [...drawn, ...firstRoundCard],
       cardOfRound: firstRoundCard[0],
-      currentRound,
-      rounds: [currentRound]
+      currentRound
     });
     await API.saveTimer(1, startRound);
   };
@@ -112,7 +112,8 @@ function App() {
           <HomePage loggedIn={loggedIn} user={user} state={state} setState={setState} setHideLinks={setHideLinks} onStartGame={() => startGame(user)}
           />}
         />
-        <Route path="/games" element={ <GameManager user={user} gameData={gameData} setMessage={setMessage} startingRounds = {true}/> } />
+        <Route path="/games" element={ <GameManager user={user} loggedIn={loggedIn} gameData={gameData} setMessage={setMessage} startingRounds = {true}/> } />
+        <Route path="/games/summary" element={<GameSummary setHideLinks={setHideLinks} loggedIn={loggedIn} onStartGame={() => startGame(user)}/>} />
         <Route path="/profile/:idProfile" element={<Profile user={user} loggedIn={loggedIn} />}/>
         <Route path="/login" element={
             loggedIn ? (

@@ -107,11 +107,13 @@ app.get('/api/rounds/:roundNumber/cards', async (req, res) => {
     }
     else {
       // Prevent drawing initial cards more than once per game/session
-      if (req.session.initialCards) {
+      if (req.session.initialCards && req.isAuthenticated()) {
         return res.status(400).json({ error: 'Initial cards have already been drawn for this game.' });
       }
-      req.session.drawnCards = {};
-      req.session.timers = {};
+      delete req.session.initialCards; // Clear any previous initial cards
+      delete req.session.drawnCards; // Clear drawn cards for this round
+      delete req.session.timers;
+      delete req.session.rounds;
       req.session.initialCards = cards;
     }
     res.json(cards);
@@ -152,20 +154,23 @@ app.get('/api/rounds/:roundNumber/cards/:cardId', async (req, res) => {
 app.post('/api/games',
   [
     check('userId').isInt(),
-    check('date').isDate({ format: 'YYYY-MM-DD HH:mm:ss', strictMode: true }),
+    check('date').custom(value => {
+  // Regex per YYYY-MM-DD HH:mm:ss
+  return /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(value);
+}),
     check('totalWon').isInt()
   ],
   isLoggedIn,
   async (req, res) => {
     const errors = validationResult(req);
+    console.log(errors);
     if (!errors.isEmpty()) {
       return res.status(422).json({ errors: errors.array() });
     }
     const { userId, date, totalWon } = req.body;
-
     // Use the initial cards saved in session
     const initialCards = req.session.initialCards;
-    req.session.initialCards = null; // Clear initial cards after use
+    delete req.session.initialCards; // Clear initial cards after use
     if (!initialCards || initialCards.length !== 3) {
       return res.status(400).json({ error: 'Initial cards not found in session or invalid' });
     }
@@ -198,11 +203,13 @@ app.post('/api/games',
 */
 app.put('/api/games/:gameId',
   [
-    check('roundIds').isArray({ min: 3, max: 5 })
+    check('roundsIds').isArray({ min: 3, max: 5 })
   ],
   isLoggedIn,
   async (req, res) => {
     const errors = validationResult(req);
+    console.log(errors);
+    console.log(req.body);
     if (!errors.isEmpty()) {
       return res.status(422).json({ errors: errors.array() });
     }
@@ -213,7 +220,7 @@ app.put('/api/games/:gameId',
     }
     try {
       await updateGame(gameId, roundIds);
-      res.status(200).json({ message: 'Game updated successfully' });
+      res.status(200).json({ gameId, roundIds });
     } catch (error) {
       res.status(500).json({ error: 'Failed to update game' });
     }
@@ -228,9 +235,6 @@ app.put('/api/games/:gameId',
 app.post('/api/games/:gameId/rounds',
   [
     check('rounds').isArray({ min: 3, max: 5 }),
-    check('rounds.*.startedAt').isDate({ format: 'HH:mm:ss', strictMode: true }),
-    check('rounds.*.roundNumber').isInt({ min: 1, max: 5 }),
-    check('rounds.*.won').isBoolean()
   ],
   isLoggedIn,
   async (req, res) => {
@@ -257,6 +261,10 @@ app.post('/api/games/:gameId/rounds',
         const roundId = await addRound({ ...round, cardId, gameId });
         roundIds.push(roundId);
       }
+      delete req.session.initialCards; // Clear any previous initial cards
+      delete req.session.drawnCards; // Clear drawn cards for this round
+      delete req.session.timers;
+      delete req.session.rounds;
       res.status(201).json({ roundIds });
     } catch (error) {
       res.status(500).json({ error: 'Failed to save rounds' });

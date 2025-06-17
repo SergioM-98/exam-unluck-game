@@ -1,9 +1,11 @@
 import { useState, useRef } from "react";
 import { Container, Card, Row, Col, Button } from "react-bootstrap";
+import { useEffect } from "react";
 import GameCard from "./GameCard.jsx";
 import dayjs from "dayjs";
 import API from "../API/API.mjs";
 import { Round } from "../models/GameModels.mjs";
+import { useNavigate } from "react-router";
 
 function GameManager(props) {
   const { gameData, user, setMessage } = props;
@@ -13,7 +15,18 @@ function GameManager(props) {
   const [currentRound, setCurrentRound] = useState(gameData?.currentRound || null);
   const [rounds, setRounds] = useState(gameData?.rounds || []);
   const [inGame, setInGame] = useState(true);
+  const navigate = useNavigate();
 
+  useEffect(() => {
+  if ((
+    (cardsDrawn.length === 8 ||
+    cardsInHand.length === 6 ) ||
+    (!props.loggedIn)) && (inGame === false))
+   {
+    endGame();
+  }
+  // eslint-disable-next-line
+}, [cardsInHand, inGame]);
   // Avvia un nuovo round
   const handleRoundStart = async (roundNumber, drawnCards = cardsDrawn) => {
     try {
@@ -35,7 +48,6 @@ function GameManager(props) {
         null
       );
       setCurrentRound(newRound);
-      setRounds((prev) => [...prev, newRound]);
       await API.saveTimer(roundNumber, startRound);
       setInGame(true);
       
@@ -43,6 +55,25 @@ function GameManager(props) {
       setMessage && setMessage({ msg: "Error starting round", type: "danger" });
       
     }
+  };
+    const endGame = async () => {
+    if (props.loggedIn) {
+      try{
+        const game = await API.saveGame({
+          userId: user.id,
+          date: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+          totalWon: cardsInHand.length,
+        });
+        console.log(game.gameId);
+        const roundsId = await API.saveRounds(game.gameId, rounds);
+        await API.updateGameRounds(game.gameId, roundsId);
+      }
+      catch (error) {
+        console.log(error);
+        setMessage && setMessage({ msg: "Error saving game", type: "danger" });
+      }
+    }
+    navigate("/games/summary", { state: {cardsInHand} });
   };
 
   // Gestisci la fine del round
@@ -59,30 +90,24 @@ function GameManager(props) {
         });
       }
     }
+    
     setCurrentRound((curr) => ({ ...curr, won }));
     setRounds((prev) => [...prev, currentRound]);
-
-    if (
-      cardsDrawn.length === 8 ||
-      cardsInHand.length === 6 ||
-      props.loggedIn === false
-    ) {
-      // finisci il gioco
-    }
-    else {
-        setInGame(false);
-    }
+    setInGame(false)
+    
   };
 
   const selectionControl = async (precIndex, succIndex) => {
     let won = false;
     const card = await API.getCardById(currentRound.roundNumber, cardOfRound.cardId);
+    setCurrentRound((curr) => ({ ...curr, cardId: card.cardId }));
     if (card.index < succIndex && card.index > precIndex) {
       won = true;
-  
     }
 
-    handleEndRound(won);
+    await handleEndRound(won, card.card);
+
+
   };
 
   return (

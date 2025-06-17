@@ -1,28 +1,44 @@
 import { Card, Button, Row, Col } from 'react-bootstrap';
-import { useNavigate } from 'react-router';
+import React, { useEffect } from 'react';
+import { useNavigate, useLocation} from 'react-router';
 import GameCard from './GameCard';
-
-
 
 function GameSummary(props) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const cardsInHand = location.state?.cardsInHand || [];
+  const loggedIn = props.loggedIn; // Passalo come prop se ti serve
+
+  useEffect(() => {
+    props.setHideLinks(false);
+  }, []);
+
+  const handlePlayAgain = async () => {
+    props.setHideLinks(true);
+    if (props.onStartGame) await props.onStartGame();
+    navigate("/games");
+  };
+
+  // Determina vittoria o sconfitta
+  const gameWon = (loggedIn && cardsInHand.length === 6) || (!loggedIn && cardsInHand.length === 4);
 
   return (
-    <div className="game-summary text-center d-flex flex-column justify-content-between" style={{ minHeight: "80vh" }}>
-      <div>
-        <h2>Game Summary</h2>
-        <h3>Cards Obtained</h3>
-        <Row className="justify-content-center">
-          {props.cardsInHand.map((card) => (
-            <Col key={card.cardId} xs={12} sm={6} md={4} lg={3} className="mb-3">
-              <GameCard {...card} />
-            </Col>
-          ))}
-        </Row>
-      </div>
-      <div className="w-100 d-flex justify-content-center gap-3 mb-4">
-        <Button variant="dark" onClick={() => navigate("/")}>Torna alla Home</Button>
-        <Button variant="primary" onClick={() => navigate("/games")}>Nuovo Gioco</Button>
+    <div className="d-flex flex-column align-items-center justify-content-center" style={{ minHeight: "100vh" }}>
+      <h2 className="mb-4">{gameWon ? "Game won!" : "Game Lost"}</h2>
+      <Row className="mb-4" style={{ justifyContent: "center" }}>
+        {cardsInHand.map((card, idx) => (
+          <Col key={idx} xs="auto" className="mb-2">
+            <GameCard {...card} />
+          </Col>
+        ))}
+      </Row>
+      <div className="d-flex gap-3">
+        <Button variant="primary" onClick={handlePlayAgain}>
+          Play Again
+        </Button>
+        <Button variant="secondary" onClick={() => navigate('/')}>
+          Home
+        </Button>
       </div>
     </div>
   );

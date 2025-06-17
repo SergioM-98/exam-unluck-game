@@ -67,53 +67,30 @@ const saveGame = async (gameData) => {
       'Content-Type': 'application/json',
     },
     credentials: 'include',
-    body: JSON.stringify(gameData),
+    body: JSON.stringify({userId: gameData.userId, date: gameData.date, totalWon: gameData.totalWon}),
   });
   if (response.ok) {
-    const game = await response.json();
-    return new Game(
-      game.gameId,
-      game.userId,
-      game.date,
-      new Card(game.initialCard1.cardId, game.initialCard1.name, game.initialCard1.image, game.initialCard1.index),
-      new Card(game.initialCard2.cardId, game.initialCard2.name, game.initialCard2.image, game.initialCard2.index),
-      new Card(game.initialCard3.cardId, game.initialCard3.name, game.initialCard3.image, game.initialCard3.index),
-      null,
-      null,
-      null,
-      null,
-      null,
-      game.totalWon
-    );
+    const gameId = await response.json();
+    return gameId;
   } else {
+    console.log(response.errDetails);
     throw await response.text();
   }
 };
 // 5. PUT    /api/games/:gameId               - Updates the rounds of a game
-const updateGameRounds = async (gameId, rounds) => {
+const updateGameRounds = async (gameId, roundsIds) => {
   const response = await fetch(`${SERVER_URL}/api/games/${gameId}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
     },
     credentials: 'include',
-    body: JSON.stringify({ roundIds: rounds }),
+    body: JSON.stringify( {roundsIds} ),
   });
+
   if (response.ok) {
     const game = await response.json();
-    return new Game(
-      game.gameId,
-      game.userId,
-      game.date,
-      new Card(game.initialCard1.cardId, game.initialCard1.name, game.initialCard1.image, game.initialCard1.index),
-      new Card(game.initialCard2.cardId, game.initialCard2.name, game.initialCard2.image, game.initialCard2.index),
-      new Card(game.initialCard3.cardId, game.initialCard3.name, game.initialCard3.image, game.initialCard3.index),
-      new Round(game.round1.roundId, game.round1.startedAt, game.round1.cardId, game.round1.roundNumber, game.round1.won, game.round1.gameId),
-      new Round(game.round2.roundId, game.round2.startedAt, game.round2.cardId, game.round2.roundNumber, game.round2.won, game.round2.gameId),
-      new Round(game.round3.roundId, game.round3.startedAt, game.round3.cardId, game.round3.roundNumber, game.round3.won, game.round3.gameId),
-      game.round4 ? new Round(game.round4.roundId, game.round4.startedAt, game.round4.cardId, game.round4.roundNumber, game.round4.won, game.round4.gameId) : null,
-      game.round5 ? new Round(game.round5.roundId, game.round5.startedAt, game.round5.cardId, game.round5.roundNumber, game.round5.won, game.round5.gameId) : null,
-    );
+    return game;
   } else {
     throw await response.text();
   }

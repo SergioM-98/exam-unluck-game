@@ -3,7 +3,7 @@ import { LogoutButton } from './AuthComponents';
 import {Link} from 'react-router';
 
 function NavHeader(props) {
-
+    
     const handleBrandClick = (e) => {
         if (props.hideLinks) e.preventDefault();
     };
