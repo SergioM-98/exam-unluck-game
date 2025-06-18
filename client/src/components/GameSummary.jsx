@@ -1,13 +1,13 @@
-import { Card, Button, Row, Col } from 'react-bootstrap';
+import { Card, Button, Row, Col, Container } from 'react-bootstrap';
 import React, { useEffect } from 'react';
-import { useNavigate, useLocation} from 'react-router';
+import { useNavigate, useLocation } from 'react-router';
 import GameCard from './GameCard';
 
 function GameSummary(props) {
   const navigate = useNavigate();
   const location = useLocation();
   const cardsInHand = location.state?.cardsInHand || [];
-  const loggedIn = props.loggedIn; // Passalo come prop se ti serve
+  const loggedIn = props.loggedIn;
 
   useEffect(() => {
     props.setHideLinks(false);
@@ -19,11 +19,10 @@ function GameSummary(props) {
     navigate("/games");
   };
 
-  // Determina vittoria o sconfitta
   const gameWon = (loggedIn && cardsInHand.length === 6) || (!loggedIn && cardsInHand.length === 4);
 
   return (
-    <div className="d-flex flex-column align-items-center justify-content-center" style={{ minHeight: "100vh" }}>
+    <Container fluid className="d-flex flex-column align-items-center justify-content-center" style={{ minHeight: "100vh" }}>
       <h2 className="mb-4">{gameWon ? "Game won!" : "Game Lost"}</h2>
       <Row className="mb-4" style={{ justifyContent: "center" }}>
         {cardsInHand.map((card, idx) => (
@@ -40,7 +39,7 @@ function GameSummary(props) {
           Home
         </Button>
       </div>
-    </div>
+    </Container>
   );
 }
 
