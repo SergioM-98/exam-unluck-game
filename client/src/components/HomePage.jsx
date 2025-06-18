@@ -49,8 +49,8 @@ function HomePage (props) {
           <h2 className="subtitle" style={{ marginBottom: "2.5rem" }}>
             <span
               style={{
-                color: "#b30000", // stesso colore di Romantic nella navbar
-                textShadow: "2px 2px 4px #000" // ombra nera come in navbar
+                color: "#b30000",
+                textShadow: "2px 2px 4px #000" 
               }}
               className="text-shadow-black"
             >

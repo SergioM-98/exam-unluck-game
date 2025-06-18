@@ -14,7 +14,7 @@ function Profile(props) {
                 setGames(games);
             }
         } catch (error) {
-            // error handling silenziato
+            setGames([]);
         }
     }
 
@@ -63,7 +63,6 @@ function Profile(props) {
                                         <Col xs={4}><strong style={{ color: "#000" }}>Initial Card 3:</strong></Col>
                                         <Col xs={8}><em style={{ color: "#000" }}>{game.initialCard3.name}</em></Col>
                                     </Row>
-                                    {/* Round 1 */}
                                     <Row className="mb-2 w-100">
                                         <Col xs={4}><strong style={{ color: "#000" }}>Round 1:</strong></Col>
                                         <Col xs={8}>
@@ -71,7 +70,6 @@ function Profile(props) {
                                             <strong style={{ color: "#000" }}>{game.round1.won ? "Card Won" : "Card Lost"}</strong>
                                         </Col>
                                     </Row>
-                                    {/* Round 2 */}
                                     <Row className="mb-2 w-100">
                                         <Col xs={4}><strong style={{ color: "#000" }}>Round 2:</strong></Col>
                                         <Col xs={8}>
@@ -79,7 +77,6 @@ function Profile(props) {
                                             <strong style={{ color: "#000" }}>{game.round2.won ? "Card Won" : "Card Lost"}</strong>
                                         </Col>
                                     </Row>
-                                    {/* Round 3 */}
                                     <Row className="mb-2 w-100">
                                         <Col xs={4}><strong style={{ color: "#000" }}>Round 3:</strong></Col>
                                         <Col xs={8}>
@@ -87,7 +84,6 @@ function Profile(props) {
                                             <strong style={{ color: "#000" }}>{game.round3.won ? "Card Won" : "Card Lost"}</strong>
                                         </Col>
                                     </Row>
-                                    {/* Round 4 */}
                                     {game.round4 && (
                                         <Row className="mb-2 w-100">
                                             <Col xs={4}><strong style={{ color: "#000" }}>Round 4:</strong></Col>
@@ -97,7 +93,6 @@ function Profile(props) {
                                             </Col>
                                         </Row>
                                     )}
-                                    {/* Round 5 */}
                                     {game.round5 && (
                                         <Row className="mb-2 w-100">
                                             <Col xs={4}><strong style={{ color: "#000" }}>Round 5:</strong></Col>

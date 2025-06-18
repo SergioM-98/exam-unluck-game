@@ -26,10 +26,16 @@ function App() {
 
    useEffect(() => {
     const checkAuth = async () => {
+      try
+      {
       const user = await API.getUserInfo();
       setLoggedIn(true);
       setUser(user);
-    };
+     }
+    catch (err) {
+      setLoggedIn(false);
+      setUser(user);
+    }};
     checkAuth();
   }, []);
 
@@ -55,11 +61,10 @@ function App() {
     const drawn = await API.getCards(0, startingFilters);
     drawn.sort((a, b) => a.index - b.index);
 
-    // Pesca la carta del primo round
+
     const banned = drawn.map(card => card.cardId);
     const firstRoundCard = await API.getCards(1, { num: 1, bannedCards: banned, visibility: false });
 
-    // Prepara il round corrente
     const startRound = dayjs().format("YYYY-MM-DD HH:mm:ss");
     
     const currentRound = new Round(
@@ -114,7 +119,6 @@ function App() {
               setState={setState}
               setHideLinks={setHideLinks}
               onStartGame={() => startGame(user)}
-              // Passa il messaggio solo a HomePage
               message={message}
               setMessage={setMessage}
             />

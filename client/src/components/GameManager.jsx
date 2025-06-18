@@ -1,6 +1,5 @@
 import { useState, useRef } from "react";
 import { Container, Card, Row, Col, Button } from "react-bootstrap";
-import { useEffect } from "react";
 import GameCard from "./GameCard.jsx";
 import dayjs from "dayjs";
 import API from "../API/API.mjs";
@@ -20,7 +19,7 @@ function GameManager(props) {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Avvia un nuovo round
+
   const handleRoundStart = async (roundNumber, drawnCards = cardsDrawn) => {
     try {
       const banned = drawnCards.map((card) => card.cardId);
@@ -64,14 +63,12 @@ function GameManager(props) {
         setMessage && setMessage({ msg: "Error saving game", type: "danger" });
       }
     }
-    // Naviga dopo un breve delay per mostrare il loader
     setTimeout(() => {
       setLoading(false);
       navigate("/games/summary", { state: { cardsInHand: updatedCardsInHand } });
     }, 1000);
   };
 
-  // Gestisci la fine del round
   const handleEndRound = async (won, card) => {
     let updatedCardsInHand = cardsInHand;
     if (won) {
@@ -176,7 +173,7 @@ function GameManager(props) {
       ) : (
         <div className="d-flex flex-column justify-content-center align-items-center" style={{ flex: 1, minHeight: "100vh" }}>
           <Button
-            variant="primary"
+            variant="btn btn-dark mb-2"
             size="lg"
             onClick={() => handleRoundStart((currentRound?.roundNumber || 0) + 1)}
           >

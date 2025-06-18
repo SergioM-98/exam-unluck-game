@@ -165,7 +165,7 @@ export async function addRound(round) {
         });
     });
 }
-// This function retrieves a specified number of cards, excluding those that are already used in the game.
+
 export async function getCards(bannedCardsId = [], numCards) {
     return new Promise((resolve, reject) => {
         const query = `SELECT * FROM cards`;
@@ -173,7 +173,6 @@ export async function getCards(bannedCardsId = [], numCards) {
             if (err) {
                 reject(err);
             } else {
-                // Filter out banned cards and shuffle the remaining cards
                 const cards = rows
                     .map(row => new Card(row.id_card, row.name, row.image, row.unluck_index))
                     .filter(card => !bannedCardsId.includes(card.cardId));

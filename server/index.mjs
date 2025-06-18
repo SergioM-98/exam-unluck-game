@@ -102,12 +102,12 @@ app.get('/api/rounds/:roundNumber/cards', async (req, res) => {
       cards.forEach(card => delete card.index);
     }
     if(parseInt(num) === 1){
-      // Save drawn cards in session, associated with the roundNumber
+
       if (!req.session.drawnCards) req.session.drawnCards = {};
       req.session.drawnCards[req.params.roundNumber] = cards;
     }
     else {
-      // Prevent drawing initial cards more than once per game/session
+
       if (req.session.initialCards && req.isAuthenticated()) {
         return res.status(400).json({ error: 'Initial cards have already been drawn for this game.' });
       }
@@ -167,9 +167,9 @@ app.post('/api/games',
       return res.status(422).json({ errors: errors.array() });
     }
     const { userId, date, totalWon } = req.body;
-    // Use the initial cards saved in session
+
     const initialCards = req.session.initialCards;
-    delete req.session.initialCards; // Remove initial cards after use
+    delete req.session.initialCards; 
     if (!initialCards || initialCards.length !== 3) {
       return res.status(400).json({ error: 'Initial cards not found in session or invalid' });
     }
@@ -249,7 +249,7 @@ app.post('/api/games/:gameId/rounds',
     try {
       const roundIds = [];
       for (const round of rounds) {
-        // Get the cardId from session for this roundNumber
+
         const drawnCards = req.session.drawnCards?.[round.roundNumber];
         if (!drawnCards || !drawnCards.length) {
           return res.status(400).json({ error: `No drawn card found in session for round ${round.roundNumber}` });
@@ -260,13 +260,13 @@ app.post('/api/games/:gameId/rounds',
         else{
           round.won = 0;
         }
-        // Use the cardId from session
+
         const cardId = drawnCards[0].cardId;
         const roundId = await addRound({ ...round, cardId, gameId });
         roundIds.push(roundId);
       }
-      delete req.session.initialCards; // Remove any previous initial cards
-      delete req.session.drawnCards; // Remove drawn cards for this round
+      delete req.session.initialCards; 
+      delete req.session.drawnCards; 
       delete req.session.timers;
       delete req.session.rounds;
       res.status(201).json({ roundIds });
@@ -284,7 +284,7 @@ app.post('/api/rounds/:roundNumber/timers', (req, res) => {
   const { startedAt } = req.body;
   const { roundNumber } = req.params;
   
-  // Save the timer in session, associated with the roundNumber
+
   if (!req.session.timers) req.session.timers = {};
   req.session.timers[roundNumber] = startedAt;
   res.status(200).json({ message: 'Timer saved in session', roundNumber, startedAt });
@@ -303,8 +303,8 @@ app.post('/api/rounds/:roundNumber/timers/validate', (req, res) => {
     return res.status(400).json({ error: 'No timer found for this round' });
   }
 
-  // Acceptable margin for network delay (1 second)
-  const MARGIN_SECONDS = 1;
+
+  const MARGIN_SECONDS = 0.5;
 
   const startedAtMoment = dayjs(startedAt, 'HH:mm:ss');
   const now = dayjs();
@@ -342,5 +342,5 @@ app.delete('/api/sessions/current', (req, res) => {
   });
 });
 
-// Start the server
+
 app.listen(port, () => { console.log(`API server started at http://localhost:${port}`); });

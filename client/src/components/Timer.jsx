@@ -23,7 +23,7 @@ function Timer({ seconds, onTimeout }) {
 
   return (
     <div style={{ fontWeight: "bold", fontSize: "2rem", color: "#000" }}>
-        Tempo Mancante {timeLeft}s
+        Time Left: {timeLeft}s
     </div>
   );
 }
