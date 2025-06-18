@@ -1,6 +1,12 @@
+import { Row, Col } from "react-bootstrap";
+
 function NotFound() {
-  return(
-      <p className="lead">this route doesn't exist, tragic!</p>
+  return (
+    <Row className="justify-content-center mt-5">
+      <Col className="fs-1">
+      This route doesn't exist, tragic!
+      </Col>
+    </Row>
   );
 }
 

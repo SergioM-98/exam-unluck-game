@@ -16,7 +16,7 @@
   - permette di giocare un'altra partita o di ritornare al menu principale.
 
 - Route `/profile/:idProfile`  
-  - Profile page: mostra la cronologia delle partite fatte dall'utente, il nome delle carte che sono state pescate, in quale round e se la carta è stata vinta.
+  - Profile page: mostra la cronologia delle partite fatte dall'utente, se sono vinte, il nome delle carte che sono state pescate, in quale round e se la carta è stata vinta.
 
 - Route `/login`  
   - Login page: apre un form che permette di fare un login.
@@ -30,66 +30,109 @@
 ## API Server
 
 - GET `/api/users/:userId/games`
-  - request parameters
-  - response body content
+  - Request Parameters: `userId` ID numerico dell’utente di cui si vogliono ottenere le partite
+  - Response Body Content: Array di oggetti partita con dettagli su carte iniziali, round e carte dei round.
 
 - GET `/api/rounds/:roundNumber/cards`
-  - request parameters
-  - response body content
+  - Request Parameters: `roundNumber` numero del round, `bannedCards` query, opzionale: lista di id delle carte da escludere, separati da virgola, `num` query, opzionale: numero di carte da pescare, `visibility` query, opzionale: se false, nasconde l’indice di sfortuna al client, true lo rende visibile.
+  - Response Body Content: Array di carte pescate per il round richiesto.
 
 - GET `/api/rounds/:roundNumber/cards/:cardId`
-  - request parameters
-  - response body content
+  - Request Parameters: `roundNumber` numero del round, `cardId` ID della carta da ottenere
+  - Response Body Content: Oggetto carta con dettagli id, nome, immagine, indice di sfortuna.
 
 - POST `/api/games`
-  - request parameters and request body content
-  - response body content
+  - Request Parameters: nessuno
+  - Request Body Content: `userId` ID numerico dell’utente, `date` data e ora della partita, formato `YYYY-MM-DD HH:mm:ss`, `totalWon` numero di carte vinte
+  - Response Body Content: { gameId } ID della partita appena creata.
 
 - PUT `/api/games/:gameId`
-  - request parameters and request body content
-  - response body content
+  - Request Parameters: `gameId` ID della partita da aggiornare
+  - Request Body Content: `roundsIds` array di ID dei round da associare alla partita, minimo 3, massimo 5
+  - Response Body Content: { gameId, roundsIds } conferma dell’aggiornamento.
 
 - POST `/api/games/:gameId/rounds`
-  - request parameters and request body content
-  - response body content
+  - Request Parameters: `gameId` ID della partita da cui salvare i round
+  - Request Body Content: `rounds` array di oggetti round, ciascuno con: `startedAt` orario di inizio round, `HH:mm:ss`, `roundNumber` numero del round, `won` booleano, indica se il round è stato vinto
+  - Response Body Content: { roundIds } array di ID dei round creati.
 
 - POST `/api/rounds/:roundNumber/timers`
-  - request parameters and request body content
-  - response body content
+  - Request Parameters: `roundNumber` numero del round
+  - Request Body Content: `startedAt` orario di inizio round, `HH:mm:ss`
+  - Response Body Content: Messaggio di conferma e dati del timer salvato.
 
 - POST `/api/rounds/:roundNumber/timers/validate`
-  - request parameters and request body content
-  - response body content
+  - Request Parameters: `roundNumber` numero del round
+  - Response Body Content: { valid, elapsed } validità del timer e secondi trascorsi.
 
 - POST `/api/sessions`
-  - request parameters and request body content
-  - response body content
+  - Request Parameters: nessuno
+  - Request Body Content: `username` email dell’utente, `password` password dell’utente
+  - Response Body Content: Oggetto utente autenticato.
 
 - GET `/api/sessions/current`
-  - request parameters
-  - response body content
+  - Request Parameters: nessuno
+  - Response Body Content: Oggetto utente autenticato, se presente.
 
 - DELETE `/api/sessions/current`
-  - request parameters
-  - response body content
+  - Request Parameters: nessuno
+  - Response Body Content: Nessuno logout eseguito.
 
 ## Database Tables
 
-- Table `users` - contains xx yy zz
-- Table `something` - contains ww qq ss
-- ...
+- Table `users` - contiene un `id_user` auto-incrementale, `email` univoca, `name`, infine `hash` e `salt` per criptare la password.
+- Table `cards` - contiene `id_card` auto-incrementale, `name` della situazione orribile, `image` che indica il path dell'immagine, `unluck_index` che indica l'indice di sfortuna della carta. 
+- Table `games` - contiene `id_games` autoincrementale, `id_player` per indicare l'user che ha fatto la partita, le tre carte iniziali (`initial_cards1`, `initial_cards2`, `initial_cards3`), `date` che indica la data di gioco, l'id dei round giocati, se no null (`round1`, `round2`, `round3`, `round4`, `round5`) e `total_won` indica quante carte sono state vinte.
+- Table `rounds` - contiene `id_round` autoincrementale, `started_at` che indica quando il round è stato iniziato, `id_card` della carta pescata quel round, `round_number` che è il numero del round, `won` 0 se il round è stato perso 1 se round è stato vinto, e `id_game` per indicare a quale game appartiene.
+- 
 
 ## Main React Components
 
-- `ListOfSomething` (in `List.js`): component purpose and main functionality
-- `GreatButton` (in `GreatButton.js`): component purpose and main functionality
-- ...
+- `NavHeader` (in `NavHeader.js`):  
+  Purpose: Barra di navigazione superiore, mostra i link per Home e il bottone di login/logout.  
+  Main Functionality: Visualizza una interstizione con il nome della pagina, contiene link per fare login/logout, i link vengono disabilitati durante il gioco.
 
-(only _main_ components, minor ones may be skipped)
+- `HomePage` (in `HomePage.js`):  
+  Purpose: Schermata di benvenuto, permette di iniziare una partita o vedere le istruzioni.  
+  Main Functionality: Mostra il titolo, permette di iniziare una partita normale o demo, a seconda l'utente sia loggato o meno, link alle istruzioni di gioco, quando una partita è iniziata imposta come inutilizzabili i link del NavHeader, e chiama l'inizializzazione alla partita.
+
+- `GameManager` (in `GameManager.js`):  
+  Purpose: Gestisce la logica e l’interfaccia della partita, a fine partita si occupa di passare a server i dati per essere salvati (in caso di utente loggato).  
+  Main Functionality: Riceve i dati iniziali per una partita, ne gestisce i round, la selezione delle carte e il flusso di gioco, mostra le carte in mano e la carta pescata, fa chiamate per gestire il timer, si occupa di renderizzare questi elementi e di fare le chiamate al Server per validare il timer, estrarre le nuove carte, e per il salvataggio dei dati a fine partita.
+
+- `GameCard` (in `GameCard.js`):  
+  Purpose: Visualizza una singola carta con nome, immagine e indice di sfortuna.  
+  Main Functionality: Gestisce i dettagli della renderizzazione della carta, usando il componente react Card.
+
+- `Timer` (in `Timer.js`):  
+  Purpose: Mostra un timer visibile per il round corrente.  
+  Main Functionality: Visualizza il countdown in secondi, chiama una funzione di timeout quando il tempo scade, usato per far finire un round dal GameManager.
+
+- `GameSummary` (in `GameSummary.js`):  
+  Purpose: Mostra un riepilogo della partita appena finita.  
+  Main Functionality: Visualizza le carte vinte, mostra se la partita è stata vinta o meno, riabilita i link del NavHeader, fornisce link per tornare alla home page o per iniziare una nuova partita.
+
+- `Profile` (in `Profile.js`):  
+  Purpose: Mostra la cronologia delle partite dell’utente e i dettagli di ogni round.  
+  Main Functionality: Recupera e visualizza tutte le partite giocate dall’utente, indica se sono vinte o meno e mostra il loro ID come numero, in ordine cronologico crescente, da sinistra verso destra e dall'alto verso il basso, i dettagli mostrati includono, la data della partita, con l'orario, i nomi delle carte iniziali, i nomi delle carte associate al round in cui sono state pescate e se quella carta è stata vinta o persa.
+
+- `HowToPlay` (in `HowToPlay.js`):  
+  Purpose: Mostra le istruzioni su come giocare.  
+  Main Functionality: Visualizza le regole e i suggerimenti per il gioco, bottone per tornare alla home page.
+
+- `AuthComponents` (in `AuthComponents.js`):  
+  Purpose: Gestisce il login e il logout dell’utente.  
+  Main Functionality: Form di login con validazione, bottone di logout che termina la sessione e reindirizza alla home.
+
+- `NotFound` (in `NotFound.js`):  
+  Purpose: Pagina di fallback per route non definite.  
+  Main Functionality: Mostra un messaggio di errore, ritorno alla home è gestito dalla NavBar.
 
 ## Screenshot
 
-![Screenshot](./img/screenshot.jpg)
+![Screenshot](./img/screenshot01.jpg)
+
+![Screenshot](./img/screenshot02.jpg)
 
 ## Users Credentials
 

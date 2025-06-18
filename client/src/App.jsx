@@ -90,34 +90,42 @@ function App() {
 
   return (
     <Routes>
-      <Route element={
-        <>
-          <NavHeader loggedIn={loggedIn} handleLogout={handleLogout} user={user} hideLinks={hideLinks}
-        />
-        <Container fluid>
-          {message && (
-            <Row> <Alert variant={message.type} onClose={() => setMessage('')} dismissible>
-                {message.msg}
-              </Alert>
-            </Row>
-          )}
-            <Row>
-              <Col>
-                <Outlet />
-              </Col>
-            </Row>
-          </Container>
+      <Route
+        element={
+          <>
+            <NavHeader loggedIn={loggedIn} handleLogout={handleLogout} user={user} hideLinks={hideLinks} />
+            <Container fluid className="main-content">
+              <Row>
+                <Col>
+                  <Outlet />
+                </Col>
+              </Row>
+            </Container>
           </>
         }
       >
-        <Route path="/" element={
-          <HomePage loggedIn={loggedIn} user={user} state={state} setState={setState} setHideLinks={setHideLinks} onStartGame={() => startGame(user)}
-          />}
+        <Route
+          path="/"
+          element={
+            <HomePage
+              loggedIn={loggedIn}
+              user={user}
+              state={state}
+              setState={setState}
+              setHideLinks={setHideLinks}
+              onStartGame={() => startGame(user)}
+              // Passa il messaggio solo a HomePage
+              message={message}
+              setMessage={setMessage}
+            />
+          }
         />
-        <Route path="/games" element={ <GameManager user={user} loggedIn={loggedIn} gameData={gameData} setMessage={setMessage} startingRounds = {true}/> } />
-        <Route path="/games/summary" element={<GameSummary setHideLinks={setHideLinks} loggedIn={loggedIn} onStartGame={() => startGame(user)}/>} />
-        <Route path="/profile/:idProfile" element={<Profile user={user} loggedIn={loggedIn} />}/>
-        <Route path="/login" element={
+        <Route path="/games" element={<GameManager user={user} loggedIn={loggedIn} gameData={gameData} setMessage={setMessage} startingRounds={true} />} />
+        <Route path="/games/summary" element={<GameSummary setHideLinks={setHideLinks} loggedIn={loggedIn} onStartGame={() => startGame(user)} />} />
+        <Route path="/profile/:idProfile" element={<Profile user={user} loggedIn={loggedIn} />} />
+        <Route
+          path="/login"
+          element={
             loggedIn ? (
               <Navigate replace to="/" />
             ) : (
@@ -125,8 +133,8 @@ function App() {
             )
           }
         />
-        <Route path ="/HowToPlay" element={<HowToPlay/>} />
-        <Route path="*" element={ <NotFound /> } />
+        <Route path="/HowToPlay" element={<HowToPlay />} />
+        <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
   );

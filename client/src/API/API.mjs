@@ -3,7 +3,7 @@ import dayjs from "dayjs";
 
 const SERVER_URL = "http://localhost:3001";
 
-// 1. GET    /api/users/:userId/games         - Returns all games for a specific user
+// GET    /api/users/:userId/games         - Returns all games for a specific user
 const getGamesByUserId = async (userId) => {
   const response = await fetch(`${SERVER_URL}/api/users/${userId}/games`, {
     credentials: 'include',
@@ -73,7 +73,7 @@ const getGamesByUserId = async (userId) => {
     throw await response.text();
   }
 };
-// 2. GET    /api/rounds/:roundNumber/cards   - Returns a list of random cards with optional filters
+// GET    /api/rounds/:roundNumber/cards   - Returns a list of random cards with optional filters
 const getCards = async (roundNumber, filters = {}) => {
   const queryParams = new URLSearchParams(filters).toString();
   const response = await fetch(`${SERVER_URL}/api/rounds/${roundNumber}/cards?${queryParams}`, {
@@ -92,7 +92,7 @@ const getCards = async (roundNumber, filters = {}) => {
   }
   };
   
-// 3. GET    /api/rounds/:roundNumber/cards/:cardId - Returns the card with the specified id for a specific round, only if it was drawn in this round
+// GET    /api/rounds/:roundNumber/cards/:cardId - Returns the card with the specified id for a specific round, only if it was drawn in this round
 const getCardById = async (roundNumber, cardId) => {
   const response = await fetch(`${SERVER_URL}/api/rounds/${roundNumber}/cards/${cardId}`, {
     credentials: 'include',
@@ -104,7 +104,7 @@ const getCardById = async (roundNumber, cardId) => {
     throw await response.text();
   }
 };
-// 4. POST   /api/games                       - Creates a new game with the provided data at the end of the game (uses initial cards from session)
+// POST   /api/games                       - Creates a new game with the provided data at the end of the game (uses initial cards from session)
 const saveGame = async (gameData) => {
   const response = await fetch(SERVER_URL + '/api/games', {
     method: 'POST',
@@ -122,7 +122,7 @@ const saveGame = async (gameData) => {
     throw await response.text();
   }
 };
-// 5. PUT    /api/games/:gameId               - Updates the rounds of a game
+// PUT    /api/games/:gameId               - Updates the rounds of a game
 const updateGameRounds = async (gameId, roundsIds) => {
   const response = await fetch(`${SERVER_URL}/api/games/${gameId}`, {
     method: 'PUT',
@@ -140,7 +140,7 @@ const updateGameRounds = async (gameId, roundsIds) => {
     throw await response.text();
   }
 };
-// 6. POST   /api/games/:gameId/rounds        - Creates rounds for a specific game (uses the cardId saved in session for each round)
+// POST   /api/games/:gameId/rounds        - Creates rounds for a specific game (uses the cardId saved in session for each round)
 const saveRounds = async (gameId, rounds) => {
   const response = await fetch(`${SERVER_URL}/api/games/${gameId}/rounds`, {
     method: 'POST',
@@ -157,7 +157,7 @@ const saveRounds = async (gameId, rounds) => {
     throw await response.text();
   }
 };
-// 7. POST   /api/rounds/:roundNumber/timers  - Saves a timer for a round (works for both logged and guest users)
+// POST   /api/rounds/:roundNumber/timers  - Saves a timer for a round (works for both logged and guest users)
 const saveTimer = async (roundNumber, timerData) => {
   const response = await fetch(`${SERVER_URL}/api/rounds/${roundNumber}/timers`, {
     method: 'POST',
@@ -173,7 +173,7 @@ const saveTimer = async (roundNumber, timerData) => {
     throw await response.text();
   }
 };
-// 8. POST   /api/rounds/:roundNumber/timers/validate - Validates the timer for a round (max 30 seconds + margin)
+// POST   /api/rounds/:roundNumber/timers/validate - Validates the timer for a round (max 30 seconds + margin)
 const validateTimer = async (roundNumber) => {
   const response = await fetch(`${SERVER_URL}/api/rounds/${roundNumber}/timers/validate`, {
     method: 'POST',
@@ -189,7 +189,7 @@ const validateTimer = async (roundNumber) => {
     throw await response.text();
   }
 };
-// 9. POST   /api/sessions                    - Authenticates a user and starts a session
+// POST   /api/sessions                    - Authenticates a user and starts a session
 
 const logIn = async (credentials) => {
   const response = await fetch(SERVER_URL + '/api/sessions', {
@@ -210,7 +210,7 @@ const logIn = async (credentials) => {
   }
 };
 
-// 10. GET   /api/sessions/current            - Returns the current authenticated user
+// GET   /api/sessions/current            - Returns the current authenticated user
 const getUserInfo = async () => {
   const response = await fetch(SERVER_URL + '/api/sessions/current', {
     credentials: 'include',
@@ -224,7 +224,7 @@ const getUserInfo = async () => {
   }
 };
 
-// 11. DELETE /api/sessions/current           - Logs out the current user and ends the session
+// DELETE /api/sessions/current           - Logs out the current user and ends the session
     
 const logOut = async() => {
   const response = await fetch(SERVER_URL + '/api/sessions/current', {
