@@ -9,6 +9,8 @@ import HomePage from "./components/HomePage";
 import GameManager from "./components/GameManager";
 import GameSummary from "./components/GameSummary";
 import Profile from "./components/Profile";
+import NotFound from "./components/NotFound";
+import HowToPlay from "./components/HowToPlay";
 import { Container, Row, Col, Alert } from "react-bootstrap";
 import { Game, Round } from "./models/GameModels.mjs";
 import dayjs from "dayjs";
@@ -20,7 +22,7 @@ function App() {
   const [state, setState] = useState(1); 
   const [hideLinks, setHideLinks] = useState(false);
   const [gameData, setGameData] = useState(null);
-
+  
 
    useEffect(() => {
     const checkAuth = async () => {
@@ -123,7 +125,8 @@ function App() {
             )
           }
         />
-        <Route path="*" element={<Navigate replace to="/" />} />
+        <Route path ="/HowToPlay" element={<HowToPlay/>} />
+        <Route path="*" element={ <NotFound /> } />
       </Route>
     </Routes>
   );
