@@ -1,6 +1,6 @@
 import { useActionState } from "react";
 import { Form, Button, Row, Col, Alert, Nav } from 'react-bootstrap';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 
 function LoginForm(props) {
     const [state, formAction, isPending] = useActionState(loginFunction, {username: '', password: ''});
@@ -47,8 +47,13 @@ function LoginForm(props) {
 }
 
 function LogoutButton(props) {
+    const navigate = useNavigate();
+    const handleLogout = async () => {
+        await props.logout();
+        navigate('/');
+    };
   return    (<Nav.Link as="button"
-      onClick={props.logout} type="button">
+      onClick={handleLogout} type="button">
     
       Logout
     </Nav.Link>
