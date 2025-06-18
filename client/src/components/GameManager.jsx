@@ -6,6 +6,7 @@ import dayjs from "dayjs";
 import API from "../API/API.mjs";
 import { Round } from "../models/GameModels.mjs";
 import { useNavigate } from "react-router";
+import Timer from "./Timer.jsx";
 
 function GameManager(props) {
   const { gameData, user, setMessage } = props;
@@ -15,6 +16,7 @@ function GameManager(props) {
   const [currentRound, setCurrentRound] = useState(gameData?.currentRound || null);
   const [rounds, setRounds] = useState(gameData?.rounds || []);
   const [inGame, setInGame] = useState(true);
+  const [timerKey, setTimerKey] = useState(0);
   const navigate = useNavigate();
 
   // Avvia un nuovo round
@@ -40,16 +42,15 @@ function GameManager(props) {
       setCurrentRound(newRound);
       await API.saveTimer(roundNumber, startRound);
       setInGame(true);
-      
+      setTimerKey((k) => k + 1);
     } catch (error) {
       setMessage && setMessage({ msg: "Error starting round", type: "danger" });
-      
     }
   };
-  const endGame = async (finalrounds,  updatedCardsInHand) => {
+  const endGame = async (finalrounds, updatedCardsInHand) => {
     const totalWon = finalrounds.reduce((acc, round) => acc + (round.won ? 1 : 0), 0);
     if (props.loggedIn) {
-      try{
+      try {
         const game = await API.saveGame({
           userId: user.id,
           date: dayjs().format("YYYY-MM-DD HH:mm:ss"),
@@ -58,13 +59,12 @@ function GameManager(props) {
         console.log(finalrounds);
         const roundsId = await API.saveRounds(game.gameId, finalrounds);
         await API.updateGameRounds(game.gameId, roundsId);
-      }
-      catch (error) {
+      } catch (error) {
         console.log(error);
         setMessage && setMessage({ msg: "Error saving game", type: "danger" });
       }
     }
-    navigate("/games/summary", { state: {cardsInHand:  updatedCardsInHand} });
+    navigate("/games/summary", { state: { cardsInHand: updatedCardsInHand } });
   };
 
   // Gestisci la fine del round
@@ -84,14 +84,10 @@ function GameManager(props) {
     const updatedRounds = [...rounds, updateRound];
     setRounds(updatedRounds);
     setInGame(false);
-      if ((cardsDrawn.length === 8 || updatedCardsInHand.length === 6 ) || (!props.loggedIn))
-    {
-      await endGame(updatedRounds,  updatedCardsInHand);
-      }
-    };
-  
-    
-  
+    if ((cardsDrawn.length === 8 || updatedCardsInHand.length === 6) || (!props.loggedIn)) {
+      await endGame(updatedRounds, updatedCardsInHand);
+    }
+  };
 
   const selectionControl = async (precIndex, succIndex) => {
     let won = false;
@@ -107,26 +103,39 @@ function GameManager(props) {
     <Container fluid className="main-content" style={{ minHeight: "100vh", display: "flex", flexDirection: "column", padding: 0 }}>
       {inGame ? (
         <div className="main-content d-flex flex-column justify-content-between align-items-center" style={{ flex: 1, width: "100%" }}>
-          {/* In alto */}
-          <div className="w-100 d-flex justify-content-center" style={{ minHeight: "1vh" }}>
+          <div className="w-100 position-relative" style={{ minHeight: "1vh" }}>
             <Row className="text-center w-100">
               <Col>
                 <h1>Round: {currentRound?.roundNumber || "-"}</h1>
               </Col>
             </Row>
+            <div style={{
+              position: "absolute",
+              top: 0,
+              right: 0,
+              padding: "16px",
+              zIndex: 10
+            }}>
+              <Timer
+                key={timerKey}
+                seconds={30}
+                onTimeout={() => {
+                  setInGame(false);
+                  handleEndRound(false, cardOfRound);
+                }}
+              />
+            </div>
           </div>
 
-          {/* Al centro */}
+
           <div className="w-100 d-flex justify-content-center align-items-center" style={{ flex: 1, minHeight: "10vh" }}>
             {cardOfRound && (
               <GameCard {...cardOfRound} />
             )}
           </div>
 
-          {/* In basso */}
           <div className="w-100 d-flex flex-column align-items-center justify-content-end" style={{ minHeight: "20vh" }}>
-            <div className="d-flex align-items-center flex-nowrap mb-3 cards-row" style={{ width: "100%", maxWidth: "100vw", justifyContent: "flex-start", overflowX: "auto", whiteSpace: "nowrap", gap: "0",    paddingLeft: "24px",  
-    paddingRight: "24px" }}>
+            <div className="d-flex align-items-center flex-nowrap mb-3 cards-row" style={{ width: "100%", maxWidth: "100vw", justifyContent: "flex-start", overflowX: "auto", whiteSpace: "nowrap", gap: "0", paddingLeft: "24px", paddingRight: "24px" }}>
               {Array.from({ length: cardsInHand.length + 1 }).map((_, idx) => (
                 <span key={idx} className="d-flex align-items-center">
                   <Button
@@ -148,7 +157,6 @@ function GameManager(props) {
           </div>
         </div>
       ) : (
-        // Mostra solo il bottone quando il round è finito
         <div className="d-flex flex-column justify-content-center align-items-center" style={{ flex: 1, minHeight: "100vh" }}>
           <Button
             variant="primary"
