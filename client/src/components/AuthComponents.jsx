@@ -22,23 +22,39 @@ function LoginForm(props) {
     return (
         <>
             { isPending && <Alert variant="warning">Please, wait for the server's response...</Alert> }
-            <Row>
-                <Col md={6}>
-                    <Form action={formAction}>
-                        <Form.Group controlId='username' className='mb-3'>
-                            <Form.Label>username</Form.Label>
-                            <Form.Control name='username' required />
+            <Row className="justify-content-center">
+                <Col>
+                    <Form action={formAction} style={{ fontSize: "1.3rem", padding: "32px", border: "none", boxShadow: "none" }}>
+                        <Form.Group controlId='username' className='mb-4'>
+                            <Form.Label style={{ fontSize: "2rem" }}>Username</Form.Label>
+                            <Form.Control name='username' required style={{ fontSize: "1.2rem", padding: "12px" }} />
                         </Form.Group>
 
-                        <Form.Group controlId='password' className='mb-3'>
-                            <Form.Label>Password</Form.Label>
-                            <Form.Control type='password' name='password' required minLength={6} />
+                        <Form.Group controlId='password' className='mb-4'>
+                            <Form.Label style={{ fontSize: "2rem" }}>Password</Form.Label>
+                            <Form.Control type='password' name='password' required minLength={6} style={{ fontSize: "1.2rem", padding: "12px" }} />
                         </Form.Group>
 
                         {state.error && <p className="text-danger">{state.error}</p>}
 
-                        <Button variant="dark" type='submit' disabled={isPending}>Login</Button>
-                        <Link className='btn btn-danger mx-2 my-2' to={'/'} disabled={isPending}>Cancel</Link>
+                        <div className="d-flex flex-column align-items-center">
+                            <Button
+                                variant="dark"
+                                type='submit'
+                                disabled={isPending}
+                                style={{ fontSize: "2rem", padding: "10px 32px", width: "60%", marginBottom: "16px" }}
+                            >
+                                Login
+                            </Button>
+                            <Link
+                                className='btn btn-danger'
+                                to={'/'}
+                                disabled={isPending}
+                                style={{ fontSize: "2rem", padding: "10px 32px", width: "60%" }}
+                            >
+                                Cancel
+                            </Link>
+                        </div>
                     </Form>
                 </Col>
             </Row>
@@ -52,12 +68,11 @@ function LogoutButton(props) {
         await props.logout();
         navigate('/');
     };
-  return    (<Nav.Link as="button"
-      onClick={handleLogout} type="button">
-    
-      Logout
-    </Nav.Link>
-  );
+    return (
+        <Nav.Link as="button" onClick={handleLogout} type="button">
+            Logout
+        </Nav.Link>
+    );
 }
 
 export { LoginForm, LogoutButton };
