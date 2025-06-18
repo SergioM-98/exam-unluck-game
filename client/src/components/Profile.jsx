@@ -30,38 +30,44 @@ function Profile(props) {
                 <h1>games not found</h1>
             ) : (
                 <>
-                    <h2>Your games</h2>
+                    <h2><b>Your Games:</b></h2>
                     <Row>
                         {games.map((game, idx) => (
                             <Col key={game.id || idx} md={6} className="mb-3">
                                 <div className="p-3 border rounded bg-light">
-                                    <h3>Game #{game.gameId}</h3>
-                                    <p>Date: {game.date}</p>
-                                    <p>Initial Card 1: {game.initialCard1.name}</p>
-                                    <p>Initial Card 2: {game.initialCard2.name}</p>
-                                    <p>Initial Card 3: {game.initialCard3.name}</p>
+                                    <h3><b>Game #{game.gameId}</b></h3>
+                                    <p><b>Date:</b> {game.date}</p>
                                     <p>
-                                      Round 1: {game.round1.card.name}<br />
-                                      {game.round1.won ? "Card Won" : "Card Lost"}
+                                      <b>Initial Card 1:</b> <i>{game.initialCard1.name}</i>
                                     </p>
                                     <p>
-                                      Round 2: {game.round2.card.name}<br />
-                                      {game.round2.won ? "Card Won" : "Card Lost"}
+                                      <b>Initial Card 2:</b> <i>{game.initialCard2.name}</i>
                                     </p>
                                     <p>
-                                      Round 3: {game.round3.card.name}<br />
-                                      {game.round3.won ? "Card Won" : "Card Lost"}
+                                      <b>Initial Card 3:</b> <i>{game.initialCard3.name}</i>
+                                    </p>
+                                    <p>
+                                      <b>Round 1:</b> <i>{game.round1.card.name}</i><br />
+                                      <b>{game.round1.won ? "Card Won" : "Card Lost"}</b>
+                                    </p>
+                                    <p>
+                                      <b>Round 2:</b> <i>{game.round2.card.name}</i><br />
+                                      <b>{game.round2.won ? "Card Won" : "Card Lost"}</b>
+                                    </p>
+                                    <p>
+                                      <b>Round 3:</b> <i>{game.round3.card.name}</i><br />
+                                      <b>{game.round3.won ? "Card Won" : "Card Lost"}</b>
                                     </p>
                                     {game.round4 && (
                                       <p>
-                                        Round 4: {game.round4.card.name}<br />
-                                        {game.round4.won ? "Card Won" : "Card Lost"}
+                                        <b>Round 4:</b> <i>{game.round4.card.name}</i><br />
+                                        <b>{game.round4.won ? "Card Won" : "Card Lost"}</b>
                                       </p>
                                     )}
                                     {game.round5 && (
                                       <p>
-                                        Round 5: {game.round5.card.name}<br />
-                                        {game.round5.won ? "Card Won" : "Card Lost"}
+                                        <b>Round 5:</b> <i>{game.round5.card.name}</i><br />
+                                        <b>{game.round5.won ? "Card Won" : "Card Lost"}</b>
                                       </p>
                                     )}
                                 </div>
