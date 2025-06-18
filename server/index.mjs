@@ -6,7 +6,7 @@ import passport from 'passport';
 import LocalStrategy from 'passport-local';
 import session from 'express-session';
 import { check, validationResult } from 'express-validator';
-import { getCards, getGamesByUserId, addGame, addRound, getCardById } from './dao-games.mjs';
+import { getCards, getGamesByUserId, addGame, addRound, getCardById, updateGame } from './dao-games.mjs';
 import { getUser } from './dao-users.mjs';
 import dayjs from 'dayjs';
 
@@ -163,7 +163,6 @@ app.post('/api/games',
   isLoggedIn,
   async (req, res) => {
     const errors = validationResult(req);
-    console.log(errors);
     if (!errors.isEmpty()) {
       return res.status(422).json({ errors: errors.array() });
     }
@@ -180,9 +179,9 @@ app.post('/api/games',
       const gameId = await addGame({
         userId,
         date,
-        initialCard1,
-        initialCard2,
-        initialCard3,
+        initialCard1: initialCard1.cardId,
+        initialCard2: initialCard2.cardId,
+        initialCard3: initialCard3.cardId,
         round1: null,
         round2: null,
         round3: null,
@@ -208,20 +207,19 @@ app.put('/api/games/:gameId',
   isLoggedIn,
   async (req, res) => {
     const errors = validationResult(req);
-    console.log(errors);
-    console.log(req.body);
     if (!errors.isEmpty()) {
       return res.status(422).json({ errors: errors.array() });
     }
     const gameId = parseInt(req.params.gameId);
-    const { roundIds } = req.body;
+    const { roundsIds } = req.body;
     if (isNaN(gameId)) {
       return res.status(400).json({ error: 'Missing or invalid gameId' });
     }
     try {
-      await updateGame(gameId, roundIds);
-      res.status(200).json({ gameId, roundIds });
+      await updateGame(gameId, roundsIds);
+      res.status(200).json({ gameId, roundsIds });
     } catch (error) {
+      console.log(error);
       res.status(500).json({ error: 'Failed to update game' });
     }
   }
@@ -255,6 +253,12 @@ app.post('/api/games/:gameId/rounds',
         const drawnCards = req.session.drawnCards?.[round.roundNumber];
         if (!drawnCards || !drawnCards.length) {
           return res.status(400).json({ error: `No drawn card found in session for round ${round.roundNumber}` });
+        }
+        if(round.won === true) {
+          round.won = 1;
+        }
+        else{
+          round.won = 0;
         }
         // Use the cardId from session
         const cardId = drawnCards[0].cardId;
