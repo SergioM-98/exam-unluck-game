@@ -17,16 +17,6 @@ function GameManager(props) {
   const [inGame, setInGame] = useState(true);
   const navigate = useNavigate();
 
-  useEffect(() => {
-  if ((
-    (cardsDrawn.length === 8 ||
-    cardsInHand.length === 6 ) ||
-    (!props.loggedIn)) && (inGame === false))
-   {
-    endGame();
-  }
-  // eslint-disable-next-line
-}, [cardsInHand, inGame]);
   // Avvia un nuovo round
   const handleRoundStart = async (roundNumber, drawnCards = cardsDrawn) => {
     try {
@@ -56,16 +46,17 @@ function GameManager(props) {
       
     }
   };
-    const endGame = async () => {
+  const endGame = async (finalrounds,  updatedCardsInHand) => {
+    const totalWon = finalrounds.reduce((acc, round) => acc + (round.won ? 1 : 0), 0);
     if (props.loggedIn) {
       try{
         const game = await API.saveGame({
           userId: user.id,
           date: dayjs().format("YYYY-MM-DD HH:mm:ss"),
-          totalWon: cardsInHand.length,
+          totalWon: totalWon,
         });
-        console.log(game.gameId);
-        const roundsId = await API.saveRounds(game.gameId, rounds);
+        console.log(finalrounds);
+        const roundsId = await API.saveRounds(game.gameId, finalrounds);
         await API.updateGameRounds(game.gameId, roundsId);
       }
       catch (error) {
@@ -73,29 +64,34 @@ function GameManager(props) {
         setMessage && setMessage({ msg: "Error saving game", type: "danger" });
       }
     }
-    navigate("/games/summary", { state: {cardsInHand} });
+    navigate("/games/summary", { state: {cardsInHand:  updatedCardsInHand} });
   };
 
   // Gestisci la fine del round
-  const handleEndRound = async (won) => {
+  const handleEndRound = async (won, card) => {
+    let updatedCardsInHand = cardsInHand;
     if (won) {
       const result = await API.validateTimer(currentRound.roundNumber);
       if (!result.valid) {
         won = false;
       } else {
-        setCardsInHand((prev) => {
-          const updated = [...prev, cardOfRound];
-          updated.sort((a, b) => a.index - b.index);
-          return updated;
-        });
+        updatedCardsInHand = [...cardsInHand, card].sort((a, b) => a.index - b.index);
+        setCardsInHand(updatedCardsInHand);
       }
     }
+    const updateRound = { ...currentRound, won };
+    setCurrentRound(updateRound);
+    const updatedRounds = [...rounds, updateRound];
+    setRounds(updatedRounds);
+    setInGame(false);
+      if ((cardsDrawn.length === 8 || updatedCardsInHand.length === 6 ) || (!props.loggedIn))
+    {
+      await endGame(updatedRounds,  updatedCardsInHand);
+      }
+    };
+  
     
-    setCurrentRound((curr) => ({ ...curr, won }));
-    setRounds((prev) => [...prev, currentRound]);
-    setInGame(false)
-    
-  };
+  
 
   const selectionControl = async (precIndex, succIndex) => {
     let won = false;
@@ -104,10 +100,7 @@ function GameManager(props) {
     if (card.index < succIndex && card.index > precIndex) {
       won = true;
     }
-
-    await handleEndRound(won, card.card);
-
-
+    await handleEndRound(won, card);
   };
 
   return (
@@ -132,7 +125,8 @@ function GameManager(props) {
 
           {/* In basso */}
           <div className="w-100 d-flex flex-column align-items-center justify-content-end" style={{ minHeight: "20vh" }}>
-            <div className="d-flex align-items-center flex-nowrap mb-3 cards-row" style={{ width: "100%", maxWidth: "100vw", justifyContent: "center", overflowX: "hidden", whiteSpace: "nowrap", gap: "0" }}>
+            <div className="d-flex align-items-center flex-nowrap mb-3 cards-row" style={{ width: "100%", maxWidth: "100vw", justifyContent: "flex-start", overflowX: "auto", whiteSpace: "nowrap", gap: "0",    paddingLeft: "24px",  
+    paddingRight: "24px" }}>
               {Array.from({ length: cardsInHand.length + 1 }).map((_, idx) => (
                 <span key={idx} className="d-flex align-items-center">
                   <Button
