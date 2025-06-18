@@ -23,10 +23,13 @@ function Card(cardId, name, image, index) {
   this.index = index;
 }
 
-function Round(roundId, startedAt, cardId, roundNumber, won, gameId){
+function Round(roundId, startedAt, card, roundNumber, won, gameId){
   this.roundId = roundId;
   this.startedAt = dayjs(startedAt).format('HH:mm:ss');
-  this.cardId = cardId;
+  if(this.startedAt === "Invalid Date") {
+    this.startedAt = startedAt;
+  }
+  this.card = card;
   this.roundNumber = roundNumber;
   this.won = won;
   this.gameId = gameId;
