@@ -25,7 +25,7 @@ function Profile(props) {
     return (
         <Container className="mt-5">
             {games.length === 0 ? (
-                <h1 style={{ color: "#000" }}>games not found</h1>
+                <h1 style={{ color: "#000" }}>Games not found!</h1>
             ) : (
                 <>
                     <h2><strong style={{ color: "#000" }}>Your Games:</strong></h2>

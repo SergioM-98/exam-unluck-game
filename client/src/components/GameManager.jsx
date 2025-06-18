@@ -17,6 +17,7 @@ function GameManager(props) {
   const [rounds, setRounds] = useState(gameData?.rounds || []);
   const [inGame, setInGame] = useState(true);
   const [timerKey, setTimerKey] = useState(0);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   // Avvia un nuovo round
@@ -48,6 +49,7 @@ function GameManager(props) {
     }
   };
   const endGame = async (finalrounds, updatedCardsInHand) => {
+    setLoading(true);
     const totalWon = finalrounds.reduce((acc, round) => acc + (round.won ? 1 : 0), 0);
     if (props.loggedIn) {
       try {
@@ -56,15 +58,17 @@ function GameManager(props) {
           date: dayjs().format("YYYY-MM-DD HH:mm:ss"),
           totalWon: totalWon,
         });
-        console.log(finalrounds);
         const roundsId = await API.saveRounds(game.gameId, finalrounds);
         await API.updateGameRounds(game.gameId, roundsId);
       } catch (error) {
-        console.log(error);
         setMessage && setMessage({ msg: "Error saving game", type: "danger" });
       }
     }
-    navigate("/games/summary", { state: { cardsInHand: updatedCardsInHand } });
+    // Naviga dopo un breve delay per mostrare il loader
+    setTimeout(() => {
+      setLoading(false);
+      navigate("/games/summary", { state: { cardsInHand: updatedCardsInHand } });
+    }, 1000);
   };
 
   // Gestisci la fine del round
@@ -101,7 +105,20 @@ function GameManager(props) {
 
   return (
     <Container fluid className="main-content" style={{ minHeight: "100vh", display: "flex", flexDirection: "column", padding: 0 }}>
-      {inGame ? (
+      {loading ? (
+        <Row className="justify-content-center align-items-center" style={{ minHeight: "100vh" }}>
+          <Col xs="auto" className="text-center">
+            <div className="spinner-border text-primary" role="status" style={{ width: "5rem", height: "5rem" }}>
+              <span className="visually-hidden">Loading...</span>
+            </div>
+            <div className="mt-4">
+              <span style={{ fontSize: "2.2rem", fontWeight: "bold" }}>
+                Loading summary data...
+              </span>
+            </div>
+          </Col>
+        </Row>
+      ) : inGame ? (
         <div className="main-content d-flex flex-column justify-content-between align-items-center" style={{ flex: 1, width: "100%" }}>
           <div className="w-100 position-relative" style={{ minHeight: "1vh" }}>
             <Row className="text-center w-100">
