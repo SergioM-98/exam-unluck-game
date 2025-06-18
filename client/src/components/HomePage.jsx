@@ -16,23 +16,55 @@ function HomePage (props) {
     navigate("/games");
   };
 
-  return(
-    <Container className="screen text-center mt-5">
+  return (
+    <Container
+      fluid
+      className="screen"
+      style={{
+        minHeight: "100vh",
+        paddingTop: "80px", // spazio per non coprire la navbar
+        display: "flex",
+        flexDirection: "column"
+      }}
+    >
       <Row>
-        <Col>
-          <h1 className="title">Welcome to the Stuff Happens HomePage</h1>
-          <h2 className="subtitle">Romantic Edition</h2>
-          <div className="btn-home d-flex flex-column align-items-center">
-            <Link className='btn btn-dark mb-2' to="/howToPlay">QUICK GUIDE</Link> 
-            {props.loggedIn
-              ? <Button variant="dark" className="mb-2" onClick={handlePlay}>
-                  PLAY NOW
-                </Button>
-              : <Button variant="dark" className="mb-2" onClick={handlePlay}>
-                  PLAY DEMO NOW
-                </Button>
-            }
-          </div>
+        <Col className="text-center">
+          <h1 className="title" style={{ marginBottom: "0.5rem" }}>
+            Welcome to the Stuff Happens HomePage
+          </h1>
+          <h2 className="subtitle" style={{ marginBottom: "2.5rem" }}>
+            Romantic Edition
+          </h2>
+        </Col>
+      </Row>
+      <Row className="flex-grow-1 justify-content-center align-items-center">
+        <Col xs={12} className="d-flex flex-column align-items-center">
+          <Link
+            className="btn btn-dark mb-4"
+            to="/howToPlay"
+            style={{ fontSize: "1.5rem", padding: "16px 40px", minWidth: "275px" }}
+          >
+            QUICK GUIDE
+          </Link>
+          {props.loggedIn ? (
+            <Button
+              variant="dark"
+              className="mb-2"
+              style={{ fontSize: "1.5rem", padding: "16px 40px", minWidth: "220px", maxWidth: "300px" }}
+              onClick={handlePlay}
+            >
+              PLAY NOW
+            </Button>
+          ) : (
+            <Button
+              variant="dark"
+              className="mb-2"
+              style={{ fontSize: "1.5rem", padding: "16px 40px", minWidth: "220px", maxWidth: "300px" }}
+              onClick={handlePlay}
+            >
+              PLAY DEMO NOW
+            </Button>
+          )}
         </Col>
       </Row>
     </Container>
