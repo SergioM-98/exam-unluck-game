@@ -25,7 +25,7 @@ function Profile(props) {
     }, []);
 
     return (
-        <Container className="mt-4">
+        <Container className="mt-5">
             {games.length === 0 ? (
                 <h1>games non trovati</h1>
             ) : (
@@ -33,11 +33,42 @@ function Profile(props) {
                     <h2>Le tue partite</h2>
                     <Row>
                         {games.map((game, idx) => (
-                            <Col key={game.id || idx} md={4} className="mb-3">
+                            <Col key={game.id || idx} md={6} className="mb-3">
                                 <div className="p-3 border rounded bg-light">
-                                    <h5>Game #{game.id}</h5>
-                                    <p>Data: {game.date}</p>
-                                    <p>Totale vinto: {game.totalWon}</p>
+                                    <h3>Game #{game.gameId}</h3>
+                                    <p>Date: {game.date}</p>
+                                    <p>Initial Card 1: {game.initialCard1.name}</p>
+                                    <p>Initial Card 2: {game.initialCard2.name}</p>
+                                    <p>Initial Card 3: {game.initialCard3.name}</p>
+                                    {/* Round 1 */}
+                                    <p>
+                                      Round 1: {game.round1.card.name}<br />
+                                      {game.round1.won ? "Card Won" : "Card Lost"}
+                                    </p>
+                                    {/* Round 2 */}
+                                    <p>
+                                      Round 2: {game.round2.card.name}<br />
+                                      {game.round2.won ? "Card Won" : "Card Lost"}
+                                    </p>
+                                    {/* Round 3 */}
+                                    <p>
+                                      Round 3: {game.round3.card.name}<br />
+                                      {game.round3.won ? "Card Won" : "Card Lost"}
+                                    </p>
+                                    {/* Round 4 (opzionale) */}
+                                    {game.round4 && (
+                                      <p>
+                                        Round 4: {game.round4.card.name}<br />
+                                        {game.round4.won ? "Card Won" : "Card Lost"}
+                                      </p>
+                                    )}
+                                    {/* Round 5 (opzionale) */}
+                                    {game.round5 && (
+                                      <p>
+                                        Round 5: {game.round5.card.name}<br />
+                                        {game.round5.won ? "Card Won" : "Card Lost"}
+                                      </p>
+                                    )}
                                 </div>
                             </Col>
                         ))}
