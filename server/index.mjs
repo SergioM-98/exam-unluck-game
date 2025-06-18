@@ -57,6 +57,7 @@ app.use(session({
 }));
 app.use(passport.authenticate('session'));
 
+app.use('/img', express.static('img'));
 /* ROUTES */
 
 /* GET /api/users/:userId/games
