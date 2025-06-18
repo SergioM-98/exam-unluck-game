@@ -156,7 +156,6 @@ app.post('/api/games',
   [
     check('userId').isInt(),
     check('date').custom(value => {
-  // Regex for YYYY-MM-DD HH:mm:ss
   return /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(value);
 }),
     check('totalWon').isInt()
