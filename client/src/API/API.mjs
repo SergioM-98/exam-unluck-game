@@ -17,11 +17,56 @@ const getGamesByUserId = async (userId) => {
       new Card(game.initialCard1.cardId, game.initialCard1.name, game.initialCard1.image, game.initialCard1.index),
       new Card(game.initialCard2.cardId, game.initialCard2.name, game.initialCard2.image, game.initialCard2.index),
       new Card(game.initialCard3.cardId, game.initialCard3.name, game.initialCard3.image, game.initialCard3.index),
-      new Round(game.round1.roundId, game.round1.startedAt, game.round1.cardId, game.round1.roundNumber, game.round1.won, game.round1.gameId),
-      new Round(game.round2.roundId, game.round2.startedAt, game.round2.cardId, game.round2.roundNumber, game.round2.won, game.round2.gameId),
-      new Round(game.round3.roundId, game.round3.startedAt, game.round3.cardId, game.round3.roundNumber, game.round3.won, game.round3.gameId),
-      game.round4 ? new Round(game.round4.roundId, game.round4.startedAt, game.round4.cardId, game.round4.roundNumber, game.round4.won, game.round4.gameId) : null,
-      game.round5 ? new Round(game.round5.roundId, game.round5.startedAt, game.round5.cardId, game.round5.roundNumber, game.round5.won, game.round5.gameId) : null,
+      new Round(
+        game.round1.roundId, game.round1.startedAt,
+         new Card(
+          game.round1.card.cardId,
+          game.round1.card.name,
+          game.round1.card.image,
+          game.round1.card.index
+        ),
+        game.round1.roundNumber, game.round1.won, game.round1.gameId
+      ),
+      new Round(
+        game.round2.roundId, game.round2.startedAt,
+        new Card(
+          game.round2.card.cardId,
+          game.round2.card.name,
+          game.round2.card.image,
+          game.round2.card.index
+        ),
+        game.round2.roundNumber, game.round2.won, game.round2.gameId
+      ),
+      new Round(
+        game.round3.roundId, game.round3.startedAt,
+        new Card(
+          game.round3.card.cardId,
+          game.round3.card.name,
+          game.round3.card.image,
+          game.round3.card.index
+        ),
+        game.round3.roundNumber, game.round3.won, game.round3.gameId
+      ),
+      game.round4 ? new Round(
+        game.round4.roundId, game.round4.startedAt,
+        game.round4.card ? new Card(
+          game.round4.card.cardId,
+          game.round4.card.name,
+          game.round4.card.image,
+          game.round4.card.index
+        ) : null,
+        game.round4.roundNumber, game.round4.won, game.round4.gameId
+      ) : null,
+      game.round5 ? new Round(
+        game.round5.roundId, game.round5.startedAt,
+        game.round5.card ? new Card(
+          game.round5.card.cardId,
+          game.round5.card.name,
+          game.round5.card.image,
+          game.round5.card.index
+        ) : null,
+        game.round5.roundNumber, game.round5.won, game.round5.gameId
+      ) : null,
       game.totalWon
     ));
   } else {
