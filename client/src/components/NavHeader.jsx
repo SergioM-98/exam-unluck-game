@@ -12,20 +12,19 @@ function NavHeader(props) {
        <Navbar style={{ backgroundColor: '#ad1457' }} variant="dark" fixed="top" expand="lg">
             <Container fluid>
               <Navbar.Brand
-
-                    as={Link}
-                    to="/"
-                    onClick={handleBrandClick}
+                as={Link}
+                to="/"
+                onClick={handleBrandClick}
+              >
+                Stuff Happens:{" "}
+                <span
+                  className="text-shadow-black"
+                  style={{ color: '#b30000' }}
                 >
-                    Stuff Happens:{" "}
-                    <span
-                        className="text-shadow-black"
-                        style={{ color: '#b30000' }}
-                    >
-                        Romantic
-                    </span>{" "}
-                    edition
-                </Navbar.Brand>
+                  Romantic
+                </span>{" "}
+                edition
+              </Navbar.Brand>
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse id="basic-navbar-nav">    
                     {!props.hideLinks && ( 

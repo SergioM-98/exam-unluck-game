@@ -13,7 +13,7 @@ function HowToPlay() {
         <p className="fs-4">
           At the start of the game, you will draw 3 unlucky situation cards and you will be given the unluckiness indexes of these cards (from 1 to 100).<br />
           Each round you will draw a card without an unluckiness index and you will have to try to guess where it fits among the cards in your hand.<br />
-        <br />
+          <br />
           If you guess correctly, the card is added to your hand, otherwise it is discarded.<br />
           The game ends when you have collected 6 cards in your hand or after 5 rounds.<br />
           If you have collected 6 cards in your hand, you <strong>win!</strong> Otherwise, if the game ends without you having collected 6 cards, you lose.<br />

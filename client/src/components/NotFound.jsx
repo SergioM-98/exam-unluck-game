@@ -1,6 +1,6 @@
 function NotFound() {
   return(
-      <p className="lead">this route doens't exist, tragic!</p>
+      <p className="lead">this route doesn't exist, tragic!</p>
   );
 }
 

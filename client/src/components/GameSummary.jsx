@@ -33,10 +33,10 @@ function GameSummary(props) {
         ))}
       </Row>
       <div className="d-flex gap-3">
-        <Button variant="primary" onClick={handlePlayAgain}>
+        <Button variant="btn btn-dark mb-2" onClick={handlePlayAgain}>
           Play Again
         </Button>
-        <Button variant="secondary" onClick={() => navigate('/')}>
+        <Button variant="btn btn-dark mb-2" onClick={() => navigate('/')}>
           Home
         </Button>
       </div>

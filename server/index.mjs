@@ -59,7 +59,7 @@ app.use(passport.authenticate('session'));
 
 /* ROUTES */
 
-/* 1. GET /api/users/:userId/games
+/* GET /api/users/:userId/games
    - Returns all games for a specific user.
 */
 app.get('/api/users/:userId/games', isLoggedIn, async (req, res) => {
@@ -79,7 +79,7 @@ app.get('/api/users/:userId/games', isLoggedIn, async (req, res) => {
     });
 });
 
-/* 2. GET /api/rounds/:roundNumber/cards
+/* GET /api/rounds/:roundNumber/cards
    - Returns a list of random cards for a round, with optional filters.
    - Query params:
      - bannedCards: list of card ids to exclude (comma separated)
@@ -110,8 +110,8 @@ app.get('/api/rounds/:roundNumber/cards', async (req, res) => {
       if (req.session.initialCards && req.isAuthenticated()) {
         return res.status(400).json({ error: 'Initial cards have already been drawn for this game.' });
       }
-      delete req.session.initialCards; // Clear any previous initial cards
-      delete req.session.drawnCards; // Clear drawn cards for this round
+      delete req.session.initialCards; 
+      delete req.session.drawnCards; 
       delete req.session.timers;
       delete req.session.rounds;
       req.session.initialCards = cards;
@@ -122,7 +122,7 @@ app.get('/api/rounds/:roundNumber/cards', async (req, res) => {
   }
 });
 
-/* 3. GET /api/rounds/:roundNumber/cards/:cardId
+/* GET /api/rounds/:roundNumber/cards/:cardId
    - Returns the card with the specified id for a specific round.
    - Checks if the card was drawn in this round.
 */
@@ -146,7 +146,7 @@ app.get('/api/rounds/:roundNumber/cards/:cardId', async (req, res) => {
   }
 });
 
-/* 4. POST /api/games
+/* POST /api/games
    - Creates a new game with the provided data at the end of the game.
    - Uses the initial cards saved in session (req.session.initialCards) for the game.
    - Body: { userId, date, totalWon }
@@ -155,7 +155,7 @@ app.post('/api/games',
   [
     check('userId').isInt(),
     check('date').custom(value => {
-  // Regex per YYYY-MM-DD HH:mm:ss
+  // Regex for YYYY-MM-DD HH:mm:ss
   return /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(value);
 }),
     check('totalWon').isInt()
@@ -169,7 +169,7 @@ app.post('/api/games',
     const { userId, date, totalWon } = req.body;
     // Use the initial cards saved in session
     const initialCards = req.session.initialCards;
-    delete req.session.initialCards; // Clear initial cards after use
+    delete req.session.initialCards; // Remove initial cards after use
     if (!initialCards || initialCards.length !== 3) {
       return res.status(400).json({ error: 'Initial cards not found in session or invalid' });
     }
@@ -196,7 +196,7 @@ app.post('/api/games',
   }
 );
 
-/* 5. PUT /api/games/:gameId
+/* PUT /api/games/:gameId
    - Updates the rounds of a game.
    - Body: { roundIds: [id1, id2, id3, id4, id5] }
 */
@@ -225,7 +225,7 @@ app.put('/api/games/:gameId',
   }
 );
 
-/* 6. POST /api/games/:gameId/rounds
+/* POST /api/games/:gameId/rounds
    - Creates rounds for a specific game.
    - Body: { rounds: [ { startedAt, roundNumber, won }, ... ] }
    - Uses the cardId saved in session for each round.
@@ -265,8 +265,8 @@ app.post('/api/games/:gameId/rounds',
         const roundId = await addRound({ ...round, cardId, gameId });
         roundIds.push(roundId);
       }
-      delete req.session.initialCards; // Clear any previous initial cards
-      delete req.session.drawnCards; // Clear drawn cards for this round
+      delete req.session.initialCards; // Remove any previous initial cards
+      delete req.session.drawnCards; // Remove drawn cards for this round
       delete req.session.timers;
       delete req.session.rounds;
       res.status(201).json({ roundIds });
@@ -276,7 +276,7 @@ app.post('/api/games/:gameId/rounds',
   }
 );
 
-/* 7. POST /api/rounds/:roundNumber/timers
+/* POST /api/rounds/:roundNumber/timers
    - Saves a timer for a round (works for both logged and guest users).
    - Body: { startedAt: 'HH:mm:ss' }
 */
@@ -290,7 +290,7 @@ app.post('/api/rounds/:roundNumber/timers', (req, res) => {
   res.status(200).json({ message: 'Timer saved in session', roundNumber, startedAt });
 });
 
-/* 8. POST /api/rounds/:roundNumber/timers/validate
+/* POST /api/rounds/:roundNumber/timers/validate
    - Validates the timer for a round (max 30 seconds + 1 second margin).
    - Returns { valid: true/false, elapsed: seconds }
 */
@@ -316,14 +316,14 @@ app.post('/api/rounds/:roundNumber/timers/validate', (req, res) => {
   res.json({ valid, elapsed });
 });
 
-/* 9. POST /api/sessions
+/* POST /api/sessions
    - Authenticates a user and starts a session.
 */
 app.post('/api/sessions', passport.authenticate('local'), function(req, res) {
   return res.status(200).json(req.user);
 });
 
-/* 10. GET /api/sessions/current
+/* GET /api/sessions/current
    - Returns the current authenticated user.
 */
 app.get('/api/sessions/current', (req, res) => {
@@ -333,7 +333,7 @@ app.get('/api/sessions/current', (req, res) => {
     res.status(401).json({error: 'Not authenticated'});
 });
 
-/* 11. DELETE /api/sessions/current
+/* DELETE /api/sessions/current
    - Logs out the current user and ends the session.
 */
 app.delete('/api/sessions/current', (req, res) => {
