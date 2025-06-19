@@ -48,7 +48,7 @@ function HowToPlay() {
           <Row className="fs-4 mt-4">
             <Col>
               <div>
-                Be careful, you only have 30 seconds or when you choose a card the round will be considered lost!
+                Be careful, you only have 30 seconds to choose, if you don't choose the round will be considered lost!
               </div>
             </Col>
           </Row>
