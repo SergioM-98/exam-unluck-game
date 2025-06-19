@@ -121,10 +121,10 @@ const saveGame = async (gameData) => {
     throw await response.text();
   }
 };
-// PUT    /api/games/:gameId               - Updates the rounds of a game
+// PATCH    /api/games/:gameId               - Updates the rounds of a game
 const updateGameRounds = async (gameId, roundsIds) => {
   const response = await fetch(`${SERVER_URL}/api/games/${gameId}`, {
-    method: 'PUT',
+    method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
     },

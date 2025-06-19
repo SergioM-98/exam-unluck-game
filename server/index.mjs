@@ -196,11 +196,11 @@ app.post('/api/games',
   }
 );
 
-/* PUT /api/games/:gameId
+/* PATCH /api/games/:gameId
    - Updates the rounds of a game.
    - Body: { roundIds: [id1, id2, id3, id4, id5] }
 */
-app.put('/api/games/:gameId',
+app.patch('/api/games/:gameId',
   [
     check('roundsIds').isArray({ min: 3, max: 5 })
   ],
@@ -216,7 +216,10 @@ app.put('/api/games/:gameId',
       return res.status(400).json({ error: 'Missing or invalid gameId' });
     }
     try {
-      await updateGame(gameId, roundsIds);
+      const updated = await updateGame(gameId, roundsIds);
+      if (updated === 0) {
+        return res.status(404).json({ error: 'Game not found' });
+      }
       res.status(200).json({ gameId, roundsIds });
     } catch (error) {
       console.log(error);

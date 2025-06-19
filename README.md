@@ -87,12 +87,12 @@
     { "gameId": 11 }
     ```
 
-- **PUT `/api/games/:gameId`**
+- **PATCH `/api/games/:gameId`**
   - Request Parameters: `gameId` ID della partita da aggiornare
   - Request Body: `{ "roundsIds": [21, 22, 23, 24, 25] }`
-  - Response: `200 OK` (success), `400 Bad Request` (gameId mancante o non valido), `401 Unauthorized` (utente non autenticato), `422 Unprocessable Entity` (dati non validi), o `500 Internal Server Error` (errore generico).
+  - Response: `200 OK` (success), `400 Bad Request` (gameId mancante o non valido), `401 Unauthorized` (utente non autenticato), `404 Not Found` (game non trovato), `422 Unprocessable Entity` (dati non validi), o `500 Internal Server Error` (errore generico).
     - In caso di successo, restituisce `{ "gameId": 11, "roundsIds": [21, 22, 23, 24, 25] }`.
-    - In caso di errore, restituisce un messaggio di errore in formato JSON, ad esempio: `{ "error": "Missing or invalid gameId" }`.
+    - In caso di errore, restituisce un messaggio di errore in formato JSON, ad esempio: `{ "error": "Game not found" }`.
   - Esempio di response:
     ```json
     { "gameId": 11, "roundsIds": [21, 22, 23, 24, 25] }
@@ -102,11 +102,11 @@
   - Request Parameters: `gameId` ID della partita
   - Request Body: `{ "rounds": [ { "startedAt": "15:31:00", "roundNumber": 1, "won": true }, ... ] }`
   - Response: `201 Created` (success), `400 Bad Request` (gameId mancante/non valido o carte mancanti in sessione), `401 Unauthorized` (utente non autenticato), `422 Unprocessable Entity` (dati non validi), o `500 Internal Server Error` (errore generico).
-    - In caso di successo, restituisce `{ "roundIds": [21, 22] }`.
+    - In caso di successo, restituisce `{ "roundIds": [21, 22, 23] }`.
     - In caso di errore, restituisce un messaggio di errore in formato JSON, ad esempio: `{ "error": "No drawn card found in session for round 1" }`.
   - Esempio di response:
     ```json
-    { "roundIds": [21, 22, 23, 24] }
+    { "roundIds": [21, 22, 23] }
     ```
 
 - **POST `/api/rounds/:roundNumber/timers`**
@@ -158,7 +158,7 @@
 
 - Table `users` - contiene un `id_user` auto-incrementale, `email` univoca, `name`, infine `hash` e `salt` per criptare la password.
 - Table `cards` - contiene `id_card` auto-incrementale, `name` della situazione orribile, `image` che indica il path dell'immagine, `unluck_index` che indica l'indice di sfortuna della carta. 
-- Table `games` - contiene `id_games` autoincrementale, `id_player` per indicare l'user che ha fatto la partita, le tre carte iniziali (`initial_cards1`, `initial_cards2`, `initial_cards3`), `date` che indica la data di gioco, l'id dei round giocati, se no null (`round1`, `round2`, `round3`, `round4`, `round5`) e `total_won` indica quante carte sono state vinte.
+- Table `games` - contiene `id_game` autoincrementale, `id_player` per indicare l'user che ha fatto la partita, le tre carte iniziali (`initial_card1`, `initial_card2`, `initial_card3`), `date` che indica la data di gioco, l'id dei round giocati, se no null (`round1`, `round2`, `round3`, `round4`, `round5`) e `total_won` indica quante carte sono state vinte.
 - Table `rounds` - contiene `id_round` autoincrementale, `started_at` che indica quando il round è stato iniziato, `id_card` della carta pescata quel round, `round_number` che è il numero del round, `won` 0 se il round è stato perso 1 se round è stato vinto, e `id_game` per indicare a quale game appartiene.
 - 
 
