@@ -30,9 +30,9 @@ function Profile(props) {
                 <>
                     <h2><strong style={{ color: "#000" }}>Your Games:</strong></h2>
                     <Row>
-                        {games.map((game, idx) => (
+                        {games.map((game) => (
                             <Col
-                                key={game.id || idx}
+                                key={game.id}
                                 md={6}
                                 className="mb-4"
                                 style={{ paddingLeft: "32px", paddingRight: "32px" }}
