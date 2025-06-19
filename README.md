@@ -29,54 +29,130 @@
 
 ## API Server
 
-- GET `/api/users/:userId/games`
+- **GET `/api/users/:userId/games`**
   - Request Parameters: `userId` ID numerico dell’utente di cui si vogliono ottenere le partite
-  - Response Body Content: Array di oggetti partita con dettagli su carte iniziali, round e carte dei round.
+  - Response: `200 OK` (success), `400 Bad Request` (userId non valido), `401 Unauthorized` (utente non autenticato), o `500 Internal Server Error` (errore generico).
+    - In caso di successo, restituisce un array di partite in formato JSON (vedi esempio sotto).
+    - In caso di errore, restituisce un messaggio di errore in formato JSON, ad esempio: `{ "error": "Invalid user ID" }`.
+  - Esempio di response:
+    ```json
+    [
+      {
+        "gameId": 1,
+        "userId": 2,
+        "date": "2024-06-19 15:30:00",
+        "initialCard1": { "cardId": 1, "name": "Card 1", "image": "image01.jpg", "index": 3 },
+        "initialCard2": { ... },
+        "initialCard3": { ... },
+        "round1": { "roundId": 10, "startedAt": "15:31:00", "card": { ... }, "roundNumber": 1, "won": 1, "gameId": 1 },
+        "round2": { ... },
+        "round3": { ... },
+        "round4": null,
+        "round5": null,
+        "totalWon": 2
+      }
+    ]
+    ```
 
-- GET `/api/rounds/:roundNumber/cards`
-  - Request Parameters: `roundNumber` numero del round, `bannedCards` query, opzionale: lista di id delle carte da escludere, separati da virgola, `num` query, opzionale: numero di carte da pescare, `visibility` query, opzionale: se false, nasconde l’indice di sfortuna al client, true lo rende visibile.
-  - Response Body Content: Array di carte pescate per il round richiesto.
+- **GET `/api/rounds/:roundNumber/cards`**
+  - Request Parameters: `roundNumber` numero del round, `bannedCards` query opzionale (lista di id delle carte da escludere, separati da virgola), `num` query opzionale (numero di carte da pescare), `visibility` query opzionale (se false, nasconde l’indice di sfortuna).
+  - Response: `200 OK` (success), `400 Bad Request` (carte già pescate o parametri errati), `500 Internal Server Error` (errore generico).
+    - In caso di successo, restituisce un array di carte in formato JSON.
+    - In caso di errore, restituisce un messaggio di errore in formato JSON, ad esempio: `{ "error": "Initial cards have already been drawn for this game." }`.
+  - Esempio di response:
+    ```json
+    [
+      { "cardId": 1, "name": "Card 1", "image": "image01.jpg", "index": 3 },
+      { "cardId": 2, "name": "Card 2", "image": "image02.jpg", "index": 7 }
+    ]
+    ```
 
-- GET `/api/rounds/:roundNumber/cards/:cardId`
+- **GET `/api/rounds/:roundNumber/cards/:cardId`**
   - Request Parameters: `roundNumber` numero del round, `cardId` ID della carta da ottenere
-  - Response Body Content: Oggetto carta con dettagli id, nome, immagine, indice di sfortuna.
+  - Response: `200 OK` (success), `400 Bad Request` (id non valido o carta non pescata in questo round), `404 Not Found` (carta non esistente), o `500 Internal Server Error` (errore generico).
+    - In caso di successo, restituisce un oggetto carta in formato JSON.
+    - In caso di errore, restituisce un messaggio di errore in formato JSON, ad esempio: `{ "error": "Invalid card ID" }`.
+  - Esempio di response:
+    ```json
+    { "cardId": 1, "name": "Card 1", "image": "image01.jpg", "index": 3 }
+    ```
 
-- POST `/api/games`
-  - Request Parameters: nessuno
-  - Request Body Content: `userId` ID numerico dell’utente, `date` data e ora della partita, formato `YYYY-MM-DD HH:mm:ss`, `totalWon` numero di carte vinte
-  - Response Body Content: { gameId } ID della partita appena creata.
+- **POST `/api/games`**
+  - Request Body: `{ "userId": 2, "date": "2024-06-19 15:30:00", "totalWon": 2 }`
+  - Response: `201 Created` (success), `400 Bad Request` (carte iniziali mancanti o non valide), `401 Unauthorized` (utente non autenticato), `422 Unprocessable Entity` (dati non validi), o `500 Internal Server Error` (errore generico).
+    - In caso di successo, restituisce `{ "gameId": 11 }`.
+    - In caso di errore, restituisce un messaggio di errore in formato JSON, ad esempio: `{ "error": "Initial cards not found in session or invalid" }`.
+  - Esempio di response:
+    ```json
+    { "gameId": 11 }
+    ```
 
-- PUT `/api/games/:gameId`
+- **PUT `/api/games/:gameId`**
   - Request Parameters: `gameId` ID della partita da aggiornare
-  - Request Body Content: `roundsIds` array di ID dei round da associare alla partita, minimo 3, massimo 5
-  - Response Body Content: { gameId, roundsIds } conferma dell’aggiornamento.
+  - Request Body: `{ "roundsIds": [21, 22, 23, 24, 25] }`
+  - Response: `200 OK` (success), `400 Bad Request` (gameId mancante o non valido), `401 Unauthorized` (utente non autenticato), `422 Unprocessable Entity` (dati non validi), o `500 Internal Server Error` (errore generico).
+    - In caso di successo, restituisce `{ "gameId": 11, "roundsIds": [21, 22, 23, 24, 25] }`.
+    - In caso di errore, restituisce un messaggio di errore in formato JSON, ad esempio: `{ "error": "Missing or invalid gameId" }`.
+  - Esempio di response:
+    ```json
+    { "gameId": 11, "roundsIds": [21, 22, 23, 24, 25] }
+    ```
 
-- POST `/api/games/:gameId/rounds`
-  - Request Parameters: `gameId` ID della partita da cui salvare i round
-  - Request Body Content: `rounds` array di oggetti round, ciascuno con: `startedAt` orario di inizio round, `HH:mm:ss`, `roundNumber` numero del round, `won` booleano, indica se il round è stato vinto
-  - Response Body Content: { roundIds } array di ID dei round creati.
+- **POST `/api/games/:gameId/rounds`**
+  - Request Parameters: `gameId` ID della partita
+  - Request Body: `{ "rounds": [ { "startedAt": "15:31:00", "roundNumber": 1, "won": true }, ... ] }`
+  - Response: `201 Created` (success), `400 Bad Request` (gameId mancante/non valido o carte mancanti in sessione), `401 Unauthorized` (utente non autenticato), `422 Unprocessable Entity` (dati non validi), o `500 Internal Server Error` (errore generico).
+    - In caso di successo, restituisce `{ "roundIds": [21, 22] }`.
+    - In caso di errore, restituisce un messaggio di errore in formato JSON, ad esempio: `{ "error": "No drawn card found in session for round 1" }`.
+  - Esempio di response:
+    ```json
+    { "roundIds": [21, 22, 23, 24] }
+    ```
 
-- POST `/api/rounds/:roundNumber/timers`
+- **POST `/api/rounds/:roundNumber/timers`**
   - Request Parameters: `roundNumber` numero del round
-  - Request Body Content: `startedAt` orario di inizio round, `HH:mm:ss`
-  - Response Body Content: Messaggio di conferma e dati del timer salvato.
+  - Request Body: `{ "startedAt": "15:31:00" }`
+  - Response: `201 Created` (success), `400 Bad Request` (parametri mancanti).
+    - In caso di successo, restituisce `{ "message": "Timer saved in session", "roundNumber": "1", "startedAt": "15:31:00" }`.
+    - In caso di errore, restituisce un messaggio di errore in formato JSON, ad esempio: `{ "error": "Missing startedAt or roundNumber" }`.
+  - Esempio di response:
+    ```json
+    { "message": "Timer saved in session", "roundNumber": "1", "startedAt": "15:31:00" }
+    ```
 
-- POST `/api/rounds/:roundNumber/timers/validate`
+- **POST `/api/rounds/:roundNumber/timers/validate`**
   - Request Parameters: `roundNumber` numero del round
-  - Response Body Content: { valid, elapsed } validità del timer e secondi trascorsi.
+  - Response: `200 OK` (success), `400 Bad Request` (timer non trovato per questo round).
+    - In caso di successo, restituisce `{ "valid": true, "elapsed": 28 }`.
+    - In caso di errore, restituisce un messaggio di errore in formato JSON, ad esempio: `{ "error": "No timer found for this round" }`.
+  - Esempio di response:
+    ```json
+    { "valid": true, "elapsed": 28 }
+    ```
 
-- POST `/api/sessions`
-  - Request Parameters: nessuno
-  - Request Body Content: `username` email dell’utente, `password` password dell’utente
-  - Response Body Content: Oggetto utente autenticato.
+- **POST `/api/sessions`**
+  - Request Body: `{ "username": "user@email.com", "password": "password" }`
+  - Response: `200 OK` (success), `401 Unauthorized` (credenziali errate).
+    - In caso di successo, restituisce un oggetto utente autenticato.
+    - In caso di errore, restituisce un messaggio di errore in formato JSON, ad esempio: `{ "error": "Unauthorized" }`.
+  - Esempio di response:
+    ```json
+    { "id": 1, "name": "Sfortunato03", "email": "romantico01@nomail.com" }
+    ```
 
-- GET `/api/sessions/current`
-  - Request Parameters: nessuno
-  - Response Body Content: Oggetto utente autenticato, se presente.
+- **GET `/api/sessions/current`**
+  - Response: `200 OK` (success), `401 Unauthorized` (utente non autenticato).
+    - In caso di successo, restituisce un oggetto utente autenticato.
+    - In caso di errore, restituisce un messaggio di errore in formato JSON, ad esempio: `{ "error": "Not authenticated" }`.
+  - Esempio di response:
+    ```json
+    { "id": 1, "name": "Sfortunato03", "email": "romantico01@nomail.com" }
+    ```
 
-- DELETE `/api/sessions/current`
-  - Request Parameters: nessuno
-  - Response Body Content: Nessuno logout eseguito.
+- **DELETE `/api/sessions/current`**
+  - Response: `200 OK` (success).
+    - In caso di successo, restituisce una risposta vuota.
+    - In caso di errore, restituisce un messaggio di errore in formato JSON, ad esempio: `{ "error": "Not authenticated" }`.
 
 ## Database Tables
 
