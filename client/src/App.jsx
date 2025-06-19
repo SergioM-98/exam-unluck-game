@@ -19,7 +19,6 @@ function App() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [message, setMessage] = useState("");
   const [user, setUser] = useState("");
-  const [state, setState] = useState(1); 
   const [hideLinks, setHideLinks] = useState(false);
   const [gameData, setGameData] = useState(null);
   
@@ -75,10 +74,9 @@ function App() {
       false,
       null
     );
-
     setGameData({
       game: new Game(
-        user._id,
+        user.id,
         dayjs().format('YYYY-MM-DD HH:mm:ss'),
         drawn[0],
         drawn[1],
@@ -115,8 +113,6 @@ function App() {
             <HomePage
               loggedIn={loggedIn}
               user={user}
-              state={state}
-              setState={setState}
               setHideLinks={setHideLinks}
               onStartGame={() => startGame(user)}
               message={message}

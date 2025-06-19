@@ -118,7 +118,6 @@ const saveGame = async (gameData) => {
     const gameId = await response.json();
     return gameId;
   } else {
-    console.log(response.errDetails);
     throw await response.text();
   }
 };

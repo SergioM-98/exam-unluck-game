@@ -1,5 +1,5 @@
-import { useState, useRef } from "react";
-import { Container, Card, Row, Col, Button } from "react-bootstrap";
+import { useState } from "react";
+import { Container, Row, Col, Button } from "react-bootstrap";
 import GameCard from "./GameCard.jsx";
 import dayjs from "dayjs";
 import API from "../API/API.mjs";
@@ -22,27 +22,27 @@ function GameManager(props) {
 
   const handleRoundStart = async (roundNumber, drawnCards = cardsDrawn) => {
     try {
-      const banned = drawnCards.map((card) => card.cardId);
-      const roundCard = await API.getCards(roundNumber, {
-        num: 1,
-        bannedCards: banned,
-        visibility: false,
-      });
-      setCardsDrawn(drawnCards.concat(roundCard));
-      setCardOfRound(roundCard[0]);
-      const startRound = dayjs().format("YYYY-MM-DD HH:mm:ss");
-      const newRound = new Round(
-        null,
-        startRound,
-        roundCard[0].cardId,
-        roundNumber,
-        false,
-        null
-      );
-      setCurrentRound(newRound);
-      await API.saveTimer(roundNumber, startRound);
-      setInGame(true);
-      setTimerKey((k) => k + 1);
+        const banned = drawnCards.map((card) => card.cardId);
+        const roundCard = await API.getCards(roundNumber, {
+          num: 1,
+          bannedCards: banned,
+          visibility: false,
+        });
+        setCardsDrawn(drawnCards.concat(roundCard));
+        setCardOfRound(roundCard[0]);
+        const startRound = dayjs().format("YYYY-MM-DD HH:mm:ss");
+        const newRound = new Round(
+          null,
+          startRound,
+          roundCard[0].cardId,
+          roundNumber,
+          false,
+          null
+        );
+        setCurrentRound(newRound);
+        await API.saveTimer(roundNumber, startRound);
+        setInGame(true);
+        setTimerKey((k) => k + 1);
     } catch (error) {
       setMessage && setMessage({ msg: "Error starting round", type: "danger" });
     }
@@ -66,7 +66,7 @@ function GameManager(props) {
     setTimeout(() => {
       setLoading(false);
       navigate("/games/summary", { state: { cardsInHand: updatedCardsInHand } });
-    }, 1000);
+    }, 500);
   };
 
   const handleEndRound = async (won, card) => {
@@ -102,11 +102,10 @@ function GameManager(props) {
 
   return (
     <Container fluid className="main-content" style={{ minHeight: "100vh", display: "flex", flexDirection: "column", padding: 0 }}>
-      {loading ? (
+      {(loading) ? (
         <Row className="justify-content-center align-items-center" style={{ minHeight: "100vh" }}>
-          <Col xs="auto" className="text-center">
-            <div className="spinner-border text-primary" role="status" style={{ width: "5rem", height: "5rem" }}>
-              <span className="visually-hidden">Loading...</span>
+          <Col className="text-center">
+            <div className="spinner-border text-dark" role="status" style={{ width: "5rem", height: "5rem" }}>
             </div>
             <div className="mt-4">
               <span style={{ fontSize: "2.2rem", fontWeight: "bold" }}>
@@ -118,27 +117,22 @@ function GameManager(props) {
       ) : inGame ? (
         <div className="main-content d-flex flex-column justify-content-between align-items-center" style={{ flex: 1, width: "100%" }}>
           <div className="w-100 position-relative" style={{ minHeight: "1vh" }}>
-            <Row className="text-center w-100">
-              <Col>
+            <Row className="align-items-center w-100">
+              <Col xs={4} />
+              <Col className="text-center">
                 <h1>Round: {currentRound?.roundNumber || "-"}</h1>
               </Col>
+              <Col className="text-end">
+                <Timer
+                  key={timerKey}
+                  seconds={30}
+                  onTimeout={() => {
+                    setInGame(false);
+                    handleEndRound(false, cardOfRound);
+                  }}
+                />
+              </Col>
             </Row>
-            <div style={{
-              position: "absolute",
-              top: 0,
-              right: 0,
-              padding: "16px",
-              zIndex: 10
-            }}>
-              <Timer
-                key={timerKey}
-                seconds={30}
-                onTimeout={() => {
-                  setInGame(false);
-                  handleEndRound(false, cardOfRound);
-                }}
-              />
-            </div>
           </div>
 
 

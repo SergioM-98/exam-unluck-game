@@ -26,7 +26,7 @@ function LoginForm(props) {
                 <Col>
                     <Form action={formAction} style={{ fontSize: "1.3rem", padding: "32px", border: "none", boxShadow: "none" }}>
                         <Form.Group controlId='username' className='mb-4'>
-                            <Form.Label style={{ fontSize: "2rem" }}>Username</Form.Label>
+                            <Form.Label style={{ fontSize: "2rem" }}>Email</Form.Label>
                             <Form.Control name='username' required style={{ fontSize: "1.2rem", padding: "12px" }} />
                         </Form.Group>
 

@@ -6,7 +6,6 @@ function HomePage (props) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    props.setState(1);
     props.setHideLinks(false);
   }, []);
 
@@ -64,7 +63,7 @@ function HomePage (props) {
         <Col xs={12} className="d-flex flex-column align-items-center">
           <Link
             className="btn btn-dark mb-4"
-            to="/howToPlay"
+            to="/HowToPlay"
             style={{ fontSize: "1.5rem", padding: "16px 40px", minWidth: "275px" }}
           >
             QUICK GUIDE

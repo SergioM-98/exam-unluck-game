@@ -1,25 +1,21 @@
 import { useEffect, useState } from "react";
 
-function Timer({ seconds, onTimeout }) {
-  const [timeLeft, setTimeLeft] = useState(seconds);
-  const [timeoutCalled, setTimeoutCalled] = useState(false);
+function Timer( props ) {
+  const [timeLeft, setTimeLeft] = useState(props.seconds);
+
 
   useEffect(() => {
-    setTimeLeft(seconds); 
-    setTimeoutCalled(false); 
-  }, [seconds]);
+    setTimeLeft(props.seconds); 
+  }, [props.seconds]);
 
   useEffect(() => {
     if (timeLeft <= 0) {
-      if (!timeoutCalled) {
-        onTimeout && onTimeout();
-        setTimeoutCalled(true);
-      }
+        props.onTimeout && props.onTimeout();
       return;
     }
     const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
     return () => clearTimeout(timer);
-  }, [timeLeft, onTimeout, timeoutCalled]);
+  }, [timeLeft]);
 
   return (
     <div style={{ fontWeight: "bold", fontSize: "2rem", color: "#000" }}>

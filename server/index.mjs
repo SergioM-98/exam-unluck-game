@@ -283,11 +283,14 @@ app.post('/api/games/:gameId/rounds',
 app.post('/api/rounds/:roundNumber/timers', (req, res) => {
   const { startedAt } = req.body;
   const { roundNumber } = req.params;
-  
+  if(!startedAt || !roundNumber) {
+    return res.status(400).json({ error: 'Missing startedAt or roundNumber' });
+  }
 
   if (!req.session.timers) req.session.timers = {};
   req.session.timers[roundNumber] = startedAt;
-  res.status(200).json({ message: 'Timer saved in session', roundNumber, startedAt });
+  res.status(201).json({ message: 'Timer saved in session', roundNumber, startedAt });
+  
 });
 
 /* POST /api/rounds/:roundNumber/timers/validate
