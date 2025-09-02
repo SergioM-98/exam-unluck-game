@@ -47,37 +47,37 @@ function Profile(props) {
                                             </span>
                                         </h3>
                                     </Col>
-                                    <Row className="mb-2 w-100">
+                                    <Row key={`${game.gameId}-details`} className="mb-2 w-100">
                                         <Col xs={4}><strong style={{ color: "#000" }}>Date:</strong></Col>
                                         <Col xs={8} style={{ color: "#000" }}>{game.date}</Col>
                                     </Row>
-                                    <Row className="mb-2 w-100">
+                                    <Row key={`${game.gameId}-initial1`} className="mb-2 w-100">
                                         <Col xs={4}><strong style={{ color: "#000" }}>Initial Card 1:</strong></Col>
                                         <Col xs={8}><em style={{ color: "#000" }}>{game.initialCard1.name}</em></Col>
                                     </Row>
-                                    <Row className="mb-2 w-100">
+                                    <Row key={`${game.gameId}-initial2`} className="mb-2 w-100">
                                         <Col xs={4}><strong style={{ color: "#000" }}>Initial Card 2:</strong></Col>
                                         <Col xs={8}><em style={{ color: "#000" }}>{game.initialCard2.name}</em></Col>
                                     </Row>
-                                    <Row className="mb-2 w-100">
+                                    <Row key={`${game.gameId}-initial3`} className="mb-2 w-100">
                                         <Col xs={4}><strong style={{ color: "#000" }}>Initial Card 3:</strong></Col>
                                         <Col xs={8}><em style={{ color: "#000" }}>{game.initialCard3.name}</em></Col>
                                     </Row>
-                                    <Row className="mb-2 w-100">
+                                    <Row key={`${game.gameId}-round1`} className="mb-2 w-100">
                                         <Col xs={4}><strong style={{ color: "#000" }}>Round 1:</strong></Col>
                                         <Col xs={8}>
                                             <em style={{ color: "#000" }}>{game.round1.card.name}</em><br />
                                             <strong style={{ color: "#000" }}>{game.round1.won ? "Card Won" : "Card Lost"}</strong>
                                         </Col>
                                     </Row>
-                                    <Row className="mb-2 w-100">
+                                    <Row key={`${game.gameId}-round2`} className="mb-2 w-100">
                                         <Col xs={4}><strong style={{ color: "#000" }}>Round 2:</strong></Col>
                                         <Col xs={8}>
                                             <em style={{ color: "#000" }}>{game.round2.card.name}</em><br />
                                             <strong style={{ color: "#000" }}>{game.round2.won ? "Card Won" : "Card Lost"}</strong>
                                         </Col>
                                     </Row>
-                                    <Row className="mb-2 w-100">
+                                    <Row key={`${game.gameId}-round3`} className="mb-2 w-100">
                                         <Col xs={4}><strong style={{ color: "#000" }}>Round 3:</strong></Col>
                                         <Col xs={8}>
                                             <em style={{ color: "#000" }}>{game.round3.card.name}</em><br />
@@ -85,7 +85,7 @@ function Profile(props) {
                                         </Col>
                                     </Row>
                                     {game.round4 && (
-                                        <Row className="mb-2 w-100">
+                                        <Row key={`${game.gameId}-round4`} className="mb-2 w-100">
                                             <Col xs={4}><strong style={{ color: "#000" }}>Round 4:</strong></Col>
                                             <Col xs={8}>
                                                 <em style={{ color: "#000" }}>{game.round4.card.name}</em><br />
@@ -94,7 +94,7 @@ function Profile(props) {
                                         </Row>
                                     )}
                                     {game.round5 && (
-                                        <Row className="mb-2 w-100">
+                                        <Row key={`${game.gameId}-round5`} className="mb-2 w-100">
                                             <Col xs={4}><strong style={{ color: "#000" }}>Round 5:</strong></Col>
                                             <Col xs={8}>
                                                 <em style={{ color: "#000" }}>{game.round5.card.name}</em><br />

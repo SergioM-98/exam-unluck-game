@@ -296,11 +296,11 @@ app.post('/api/rounds/:roundNumber/timers', (req, res) => {
   
 });
 
-/* POST /api/rounds/:roundNumber/timers/validate
+/* GET /api/rounds/:roundNumber/timers/validate
    - Validates the timer for a round (max 30 seconds + 1 second margin).
    - Returns { valid: true/false, elapsed: seconds }
 */
-app.post('/api/rounds/:roundNumber/timers/validate', (req, res) => {
+app.get('/api/rounds/:roundNumber/timers/validate', (req, res) => {
   const { roundNumber } = req.params;
 
   

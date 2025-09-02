@@ -172,15 +172,14 @@ const saveTimer = async (roundNumber, timerData) => {
     throw await response.text();
   }
 };
-// POST   /api/rounds/:roundNumber/timers/validate - Validates the timer for a round (max 30 seconds + margin)
+// GET   /api/rounds/:roundNumber/timers/validate - Validates the timer for a round (max 30 seconds + margin)
 const validateTimer = async (roundNumber) => {
   const response = await fetch(`${SERVER_URL}/api/rounds/${roundNumber}/timers/validate`, {
-    method: 'POST',
+    method: 'GET',
     headers: {
       'Content-Type': 'application/json',
     },
     credentials: 'include',
-    body: JSON.stringify(),
   });
   if (response.ok) {
     return await response.json();

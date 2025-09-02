@@ -1,6 +1,40 @@
 # Exam #1: "Gioco della Sfortuna"
 ## Student: s346253 Maestrale Sergio
 
+## Installation and Setup
+
+Per avviare l'applicazione seguire questi passaggi:
+
+### Client Setup
+1. Aprire un terminale e navigare nella cartella `client`:
+   ```bash
+   cd client
+   ```
+2. Installare le dipendenze:
+   ```bash
+   npm install
+   ```
+3. Avviare il client in modalità sviluppo:
+   ```bash
+   npm run dev
+   ```
+
+### Server Setup
+1. Aprire un nuovo terminale e navigare nella cartella `server`:
+   ```bash
+   cd server
+   ```
+2. Installare le dipendenze:
+   ```bash
+   npm install
+   ```
+3. Avviare il server:
+   ```bash
+   nodemon index.mjs
+   ```
+
+L'applicazione client sarà disponibile su `http://localhost:5173` e il server API su `http://localhost:3001`.
+
 ## React Client Application Routes
 
 - Route `/`  
@@ -119,7 +153,7 @@
     { "message": "Timer saved in session", "roundNumber": "1", "startedAt": "15:31:00" }
     ```
 
-- **POST `/api/rounds/:roundNumber/timers/validate`**
+- **GET `/api/rounds/:roundNumber/timers/validate`**
   - Request Parameters: `roundNumber` numero del round
   - Response: `200 OK` (success), `400 Bad Request` (timer non trovato per questo round).
     - In caso di successo, restituisce `{ "valid": true, "elapsed": 28 }`.
