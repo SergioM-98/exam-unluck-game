@@ -1,5 +1,4 @@
 # Exam #1: "Gioco della Sfortuna"
-## Student: s346253 Maestrale Sergio
 
 ## Installation and Setup
 
